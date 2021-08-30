@@ -1,0 +1,8 @@
+{
+  "name": "programming_lang",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Artem711/Python-ProgrammingLanguage.git",
+  "author": "Artem <swift.uix@gmail.com>",
+  "license": "MIT"
+}
