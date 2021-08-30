@@ -4,5 +4,12 @@
   "main": "index.js",
   "repository": "https://github.com/Artem711/Python-ProgrammingLanguage.git",
   "author": "Artem <swift.uix@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.7.7",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "start": "tsc && node dist/index.js"
+  }
 }
