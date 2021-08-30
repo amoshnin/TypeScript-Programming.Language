@@ -25,3 +25,5 @@ class Token {
     }
   }
 }
+
+export { Token, TokenType }

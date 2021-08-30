@@ -28,4 +28,4 @@ class IllegalCharError extends ErrorBase {
   }
 }
 
-export { IllegalCharError }
+export { ErrorBase, IllegalCharError }
