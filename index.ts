@@ -6,7 +6,7 @@ const rl = readline.createInterface({
   output: process.stdout,
 })
 
-rl.question('basic > ', (text) => {
+rl.question('basic > ', (text: string) => {
   let { tokens, error } = run('<stdin>', text)
 
   if (error) {

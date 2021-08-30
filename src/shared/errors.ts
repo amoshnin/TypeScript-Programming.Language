@@ -1,12 +1,18 @@
-import { Position } from '../components/position'
+import { Position } from '../Base/position'
+import { Display } from '../Types'
 
-class ErrorBase {
+class ErrorBase implements Display {
   position_start: Position
   position_end: Position
   error_name: string
   details: string
 
-  constructor(position_start, position_end, error_name, details) {
+  constructor(
+    position_start: Position,
+    position_end: Position,
+    error_name: string,
+    details: string,
+  ) {
     this.position_start = position_start
     this.position_end = position_end
     this.error_name = error_name
@@ -23,7 +29,11 @@ class ErrorBase {
 }
 
 class IllegalCharError extends ErrorBase {
-  constructor(position_start, position_end, details) {
+  constructor(
+    position_start: Position,
+    position_end: Position,
+    details: string,
+  ) {
     super(position_start, position_end, 'Illegal Character', details)
   }
 }

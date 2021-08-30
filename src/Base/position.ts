@@ -5,7 +5,13 @@ export class Position {
   fileName: string
   fileText: string
 
-  constructor(index, line, column, fileName, fileText) {
+  constructor(
+    index: number,
+    line: number,
+    column: number,
+    fileName: string,
+    fileText: string,
+  ) {
     this.index = index
     this.line = line
     this.column = column
@@ -13,7 +19,7 @@ export class Position {
     this.fileText = fileText
   }
 
-  advance(currentChar: string) {
+  advance(currentChar?: string) {
     this.index += 1
     this.column += 1
 

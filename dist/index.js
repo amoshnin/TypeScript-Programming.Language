@@ -14,5 +14,6 @@ rl.question('basic > ', (text) => {
     else {
         console.log(tokens);
     }
+    rl.close();
 });
 //# sourceMappingURL=index.js.map
