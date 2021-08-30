@@ -1,4 +1,4 @@
-import { Position } from '../position'
+import { Position } from '../components/position'
 
 class ErrorBase {
   position_start: Position
@@ -15,8 +15,8 @@ class ErrorBase {
 
   descr(): string {
     var result = `${this.error_name}: ${this.details}\n`
-    result += `File: ${this.position_start.fileName},`
-    result += `line: ${this.position_start.line + 1},`
+    result += `File: ${this.position_start.fileName}, `
+    result += `line: ${this.position_start.line + 1}, `
     result += `column: ${this.position_start.column + 1}`
     return result
   }

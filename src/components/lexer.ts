@@ -1,10 +1,10 @@
 import { Position } from './position'
 import { Token } from './tokens'
 
-import { DIGITS } from './shared/constants'
-import { ErrorBase, IllegalCharError } from './shared/errors'
+import { DIGITS } from '../shared/constants'
+import { ErrorBase, IllegalCharError } from '../shared/errors'
 
-class Lexer {
+export class Lexer {
   fileName: string
   text: string
   currentChar: string | null = null
