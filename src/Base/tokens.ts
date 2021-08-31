@@ -1,4 +1,5 @@
 import { Display } from '../Types'
+import { Position } from './position'
 
 type TokenType =
   | 'INT'
@@ -9,6 +10,7 @@ type TokenType =
   | 'DIV'
   | 'LPAREN'
   | 'RPAREN'
+  | 'EOF'
 
 const Tokens: { [s: string]: TokenType } = {
   INT: 'INT',
@@ -19,6 +21,7 @@ const Tokens: { [s: string]: TokenType } = {
   DIV: 'DIV',
   LPAREN: 'LPAREN',
   RPAREN: 'RPAREN',
+  EOF: 'EOF',
 }
 
 type ValueType = string | number | undefined
@@ -26,9 +29,27 @@ class Token implements Display {
   type: TokenType
   value: ValueType
 
-  constructor(type: TokenType, value: ValueType = undefined) {
+  position_start: Position
+  position_end: Position
+
+  constructor(
+    type: TokenType,
+    value: ValueType = undefined,
+    position_start: Position = undefined,
+    position_end: Position = undefined,
+  ) {
     this.type = type
     this.value = value
+
+    if (position_start) {
+      this.position_start = position_start.copy()
+      this.position_end = position_start.copy()
+      this.position_end.advance()
+    }
+
+    if (position_end) {
+      this.position_end = position_end
+    }
   }
 
   descr(): string {

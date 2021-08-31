@@ -10,12 +10,21 @@ const Tokens = {
     DIV: 'DIV',
     LPAREN: 'LPAREN',
     RPAREN: 'RPAREN',
+    EOF: 'EOF',
 };
 exports.Tokens = Tokens;
 class Token {
-    constructor(type, value = undefined) {
+    constructor(type, value = undefined, position_start = undefined, position_end = undefined) {
         this.type = type;
         this.value = value;
+        if (position_start) {
+            this.position_start = position_start.copy();
+            this.position_end = position_start.copy();
+            this.position_end.advance();
+        }
+        if (position_end) {
+            this.position_end = position_end;
+        }
     }
     descr() {
         if (this.value) {

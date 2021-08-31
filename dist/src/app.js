@@ -8,11 +8,11 @@ const run = (fileName, text) => {
     const lexer = new lexer_1.Lexer(fileName, text);
     const { tokens, error } = lexer.makeTokens();
     if (error)
-        return { tokens: [], error };
+        return { tokens: null, error };
     // Generate AST (Abstract Syntax Tree)
     let parser = new Parser_1.Parser(tokens);
     let ast = parser.parse();
-    return { tokens: ast, error: null };
+    return { tokens: ast.node.descr(), error: ast.error };
 };
 exports.run = run;
 //# sourceMappingURL=app.js.map

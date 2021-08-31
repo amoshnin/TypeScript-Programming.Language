@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BinaryOperationNode = exports.NumberNode = void 0;
+exports.UnaryOperationNode = exports.BinaryOperationNode = exports.NumberNode = void 0;
 class NumberNode {
     constructor(token) {
         this.token = token;
@@ -21,4 +21,14 @@ class BinaryOperationNode {
     }
 }
 exports.BinaryOperationNode = BinaryOperationNode;
+class UnaryOperationNode {
+    constructor(operation_token, node) {
+        this.operation_token = operation_token;
+        this.node = node;
+    }
+    descr() {
+        return `(${this.operation_token}, ${this.node})`;
+    }
+}
+exports.UnaryOperationNode = UnaryOperationNode;
 //# sourceMappingURL=nodes.js.map

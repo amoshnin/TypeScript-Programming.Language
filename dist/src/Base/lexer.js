@@ -65,6 +65,7 @@ class Lexer {
                 };
             }
         }
+        tokens.push(new tokens_1.Token('EOF', undefined, this.position));
         return { tokens, error: null };
     }
     makeNumber() {

@@ -38,4 +38,14 @@ class IllegalCharError extends ErrorBase {
   }
 }
 
-export { ErrorBase, IllegalCharError }
+class InvalidSyntaxError extends ErrorBase {
+  constructor(
+    position_start: Position,
+    position_end: Position,
+    details: string,
+  ) {
+    super(position_start, position_end, 'Invalid Syntax', details)
+  }
+}
+
+export { ErrorBase, IllegalCharError, InvalidSyntaxError }

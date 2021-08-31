@@ -3,10 +3,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
 const tokens_1 = require("../base/tokens");
 const nodes_1 = require("./nodes");
+const errors_1 = require("../Shared/errors");
+class ParseResult {
+    constructor() {
+        this.error = null;
+        this.node = null;
+    }
+    register(result) {
+        if (result instanceof ParseResult) {
+            if (result.error) {
+                this.error = result.error;
+            }
+            return result.node;
+        }
+        return result;
+    }
+    success(node) {
+        this.node = node;
+        return this;
+    }
+    failure(error) {
+        this.error;
+        return this;
+    }
+}
 class Parser {
     constructor(tokens) {
+        this.tokenIndex = -1;
         this.tokens = tokens;
-        this.tokenIndex = 1;
         this.advance();
     }
     advance() {
@@ -14,40 +38,70 @@ class Parser {
         if (this.tokenIndex < this.tokens.length) {
             this.currentToken = this.tokens[this.tokenIndex];
         }
+        return this.currentToken;
     }
     ////////////////////////////////////
     parse() {
         let result = this.expr();
+        if (!result.error && this.currentToken.type !== tokens_1.Tokens.EOF) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.position_start, this.currentToken.position_end, "Expected '+', '-', '*' or '/'"));
+        }
         return result;
     }
     binaryOperation(typeFn, operations) {
-        let token = this.currentToken;
-        if (token) {
-            var left = typeFn === 'FACTOR' ? this.factor() : this.term();
-            while (operations.includes(token.type)) {
-                let operation_token = token;
-                this.advance();
-                let right = typeFn === 'FACTOR' ? this.factor() : this.term();
-                left = new nodes_1.BinaryOperationNode(left, operation_token, right);
+        let result = new ParseResult();
+        var left = result.register(typeFn === 'FACTOR' ? this.factor() : this.term());
+        if (result.error)
+            return result;
+        while (operations.includes(this.currentToken.type)) {
+            let operation_token = this.currentToken;
+            result.register(this.advance());
+            let right = result.register(typeFn === 'FACTOR' ? this.factor() : this.term());
+            if (result.error) {
+                return result;
             }
-            return left;
+            left = new nodes_1.BinaryOperationNode(left, operation_token, right);
         }
+        return result.success(left);
     }
     factor() {
+        let result = new ParseResult();
         let token = this.currentToken;
         if (token) {
-            if ([tokens_1.Tokens.INT, tokens_1.Tokens.FLOAT].includes(token.type)) {
-                this.advance();
-                return new nodes_1.NumberNode(token);
+            if ([tokens_1.Tokens.PLUS, tokens_1.Tokens.MINUS].includes(token.type)) {
+                result.register(this.advance());
+                let factor = result.register(this.factor());
+                if (result.error) {
+                    return result;
+                }
+                return result.success(new nodes_1.UnaryOperationNode(token, factor));
             }
+            else if ([tokens_1.Tokens.INT, tokens_1.Tokens.FLOAT].includes(token.type)) {
+                result.register(this.advance());
+                return result.success(new nodes_1.NumberNode(token));
+            }
+            else if (token.type === tokens_1.Tokens.LPAREN) {
+                result.register(this.advance());
+                let expr = result.register(this.expr());
+                if (result.error) {
+                    return result;
+                }
+                if (this.currentToken.type === tokens_1.Tokens.RPAREN) {
+                    result.register(this.advance());
+                    return result.success(expr);
+                }
+                else {
+                    return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.position_start, this.currentToken.position_end, "Expected ')'"));
+                }
+            }
+            return result.failure(new errors_1.InvalidSyntaxError(token.position_start, token.position_end, 'Expected int or float'));
         }
     }
     term() {
-        return this.binaryOperation('FACTOR', [tokens_1.Tokens.MUL, tokens_1.Tokens.DIV]);
+        return this.binaryOperation('FACTOR', ['MUL', 'DIV']);
     }
     expr() {
-        // @ts-ignore
-        return this.binaryOperation('TERM', [tokens_1.Tokens.PLUS, tokens_1.Tokens.MINUS]);
+        return this.binaryOperation('TERM', ['PLUS', 'MINUS']);
     }
 }
 exports.Parser = Parser;

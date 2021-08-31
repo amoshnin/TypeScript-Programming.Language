@@ -34,4 +34,18 @@ class BinaryOperationNode implements Display {
   }
 }
 
-export { NumberNode, BinaryOperationNode }
+class UnaryOperationNode implements Display {
+  operation_token
+  node
+
+  constructor(operation_token, node) {
+    this.operation_token = operation_token
+    this.node = node
+  }
+
+  descr(): string {
+    return `(${this.operation_token}, ${this.node})`
+  }
+}
+
+export { NumberNode, BinaryOperationNode, UnaryOperationNode }

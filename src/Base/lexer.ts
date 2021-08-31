@@ -65,6 +65,7 @@ export class Lexer {
         }
       }
     }
+    tokens.push(new Token('EOF', undefined, this.position))
     return { tokens, error: null }
   }
 
