@@ -38,6 +38,10 @@ To understand the source code of the parser, I below illustrated the grammar of 
 
 The role of the interpreter is to traverse through the AST (Abstract Syntax Tree) that the parser builds, look for different node types and determine what code should be executed. For example, if it comes across a binary operation node with a '+' operator - it will add its left and right child nodes together. The AST (Abstract Syntax Tree) will allow the interpreter to follow the order of operations correctly.
 
+### Steps for implementing new operators
+
+### Variables declaration
+
 ## Grammar
 
 <details>
