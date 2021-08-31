@@ -17,13 +17,18 @@ class Interpreter {
 
   visitBinaryOperationNode(node: BinaryOperationNode) {
     console.log('Found visitBinaryOperationNode')
+    this.visit(node.leftNode)
+    this.visit(node.rightNode)
   }
 
   visitUnaryOperationNode(node: UnaryOperationNode) {
     console.log('Found visitUnaryOperationNode')
+    this.visit(node.node)
   }
 
   visitNumberNode(node: NumberNode) {
     console.log('Found visitNumberNode')
   }
 }
+
+export { Interpreter }
