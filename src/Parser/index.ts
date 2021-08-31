@@ -1,4 +1,4 @@
-import { Token, Tokens, TokenType } from '../base/tokens'
+import { Token, TokenType } from '../base/tokens'
 import {
   BinaryOperationNode,
   NumberNode,
@@ -36,7 +36,7 @@ class Parser {
   ////////////////////////////////////
   parse(): ParseResult {
     let result = this.expr()
-    if (!result.error && this.currentToken.type !== Tokens.EOF) {
+    if (!result.error && this.currentToken.type !== 'EOF') {
       return result.failure(
         new InvalidSyntaxError(
           this.currentToken.positionStart,
@@ -83,7 +83,7 @@ class Parser {
     let result = new ParseResult()
     let token = this.currentToken
 
-    if ([Tokens.INT, Tokens.FLOAT].includes(token.type)) {
+    if (['INT', 'FLOAT'].includes(token.type)) {
       result.registerAdvancement()
       this.advance()
       return result.success(new NumberNode(token))
@@ -96,7 +96,7 @@ class Parser {
       this.advance()
       let expr = result.register(this.expr())
       if (result.error) return result
-      if (this.currentToken.type === Tokens.RPAREN) {
+      if (this.currentToken.type === 'RPAREN') {
         result.registerAdvancement()
         this.advance()
         return result.success(expr)
@@ -127,7 +127,7 @@ class Parser {
   factor() {
     let result = new ParseResult()
     let token = this.currentToken
-    if ([Tokens.PLUS, Tokens.MINUS].includes(token.type)) {
+    if (['PLUS', 'MINUS'].includes(token.type)) {
       result.registerAdvancement()
       this.advance()
       let factor = result.register(this.factor())

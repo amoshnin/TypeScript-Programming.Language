@@ -15,23 +15,13 @@ type TokenType =
   | 'EQ'
   | 'LPAREN'
   | 'RPAREN'
+  | 'EE'
+  | 'NE'
+  | 'LT'
+  | 'GT'
+  | 'LTE'
+  | 'GTE'
   | 'EOF'
-
-const Tokens: { [s: string]: TokenType } = {
-  INT: 'INT',
-  FLOAT: 'FLOAT',
-  PLUS: 'PLUS',
-  IDENTIFIER: 'IDENTIFIER',
-  KEYWORD: 'KEYWORD',
-  MINUS: 'MINUS',
-  MUL: 'MUL',
-  DIV: 'DIV',
-  POW: 'POW',
-  EQ: 'EQ',
-  LPAREN: 'LPAREN',
-  RPAREN: 'RPAREN',
-  EOF: 'EOF',
-}
 
 type ValueType = string | number | undefined
 class Token implements Display {
@@ -74,4 +64,4 @@ class Token implements Display {
   }
 }
 
-export { Token, TokenType, Tokens }
+export { Token, TokenType }

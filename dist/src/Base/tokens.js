@@ -1,22 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Tokens = exports.Token = void 0;
-const Tokens = {
-    INT: 'INT',
-    FLOAT: 'FLOAT',
-    PLUS: 'PLUS',
-    IDENTIFIER: 'IDENTIFIER',
-    KEYWORD: 'KEYWORD',
-    MINUS: 'MINUS',
-    MUL: 'MUL',
-    DIV: 'DIV',
-    POW: 'POW',
-    EQ: 'EQ',
-    LPAREN: 'LPAREN',
-    RPAREN: 'RPAREN',
-    EOF: 'EOF',
-};
-exports.Tokens = Tokens;
+exports.Token = void 0;
 class Token {
     constructor(type, value, positionStart, positionEnd) {
         this.type = type;

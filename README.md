@@ -42,6 +42,17 @@ The role of the interpreter is to traverse through the AST (Abstract Syntax Tree
 
 ### Variables declaration
 
+### Comparison, Logical Operators and Booleans
+
+**Comparison Operators**: =, !=, <, >, <=, >=
+
+**Logical Operators**: and, or, not
+Example of Logical Operators:
+5 == 5 and 6 == 6 => 1
+1 + 1 == 2 or 2 + 2 == 5 => 1
+
+**Booleans**: 0 = FALSE, 1 = TRUE
+
 ## Grammar
 
 <details>

@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
-const tokens_1 = require("../base/tokens");
 const nodes_1 = require("./nodes");
 const errors_1 = require("../Shared/errors");
 const ParseResult_1 = require("./ParseResult");
@@ -21,7 +20,7 @@ class Parser {
     ////////////////////////////////////
     parse() {
         let result = this.expr();
-        if (!result.error && this.currentToken.type !== tokens_1.Tokens.EOF) {
+        if (!result.error && this.currentToken.type !== 'EOF') {
             return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '+', '-', '*' or '/'"));
         }
         return result;
@@ -55,7 +54,7 @@ class Parser {
     atom() {
         let result = new ParseResult_1.ParseResult();
         let token = this.currentToken;
-        if ([tokens_1.Tokens.INT, tokens_1.Tokens.FLOAT].includes(token.type)) {
+        if (['INT', 'FLOAT'].includes(token.type)) {
             result.registerAdvancement();
             this.advance();
             return result.success(new nodes_1.NumberNode(token));
@@ -71,7 +70,7 @@ class Parser {
             let expr = result.register(this.expr());
             if (result.error)
                 return result;
-            if (this.currentToken.type === tokens_1.Tokens.RPAREN) {
+            if (this.currentToken.type === 'RPAREN') {
                 result.registerAdvancement();
                 this.advance();
                 return result.success(expr);
@@ -88,7 +87,7 @@ class Parser {
     factor() {
         let result = new ParseResult_1.ParseResult();
         let token = this.currentToken;
-        if ([tokens_1.Tokens.PLUS, tokens_1.Tokens.MINUS].includes(token.type)) {
+        if (['PLUS', 'MINUS'].includes(token.type)) {
             result.registerAdvancement();
             this.advance();
             let factor = result.register(this.factor());

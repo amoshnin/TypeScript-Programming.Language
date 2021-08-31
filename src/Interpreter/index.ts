@@ -1,5 +1,4 @@
 import { Context } from '../Context'
-import { Tokens } from '../Base/tokens'
 import {
   BinaryOperationNode,
   NodeType,
@@ -77,23 +76,23 @@ class Interpreter {
 
     var result: NumberClass = null
     var resultError: RuntimeError = null
-    if (node.operationToken.type === Tokens.PLUS) {
+    if (node.operationToken.type === 'PLUS') {
       const { number, error } = left.addedTo(right)
       result = number
       resultError = error
-    } else if (node.operationToken.type === Tokens.MINUS) {
+    } else if (node.operationToken.type === 'MINUS') {
       const { number, error } = left.subtractedBy(right)
       result = number
       resultError = error
-    } else if (node.operationToken.type === Tokens.MUL) {
+    } else if (node.operationToken.type === 'MUL') {
       const { number, error } = left.multipliedBy(right)
       result = number
       resultError = error
-    } else if (node.operationToken.type === Tokens.DIV) {
+    } else if (node.operationToken.type === 'DIV') {
       const { number, error } = left.dividedBy(right)
       result = number
       resultError = error
-    } else if (node.operationToken.type === Tokens.POW) {
+    } else if (node.operationToken.type === 'POW') {
       const { number, error } = left.poweredBy(right)
       result = number
       resultError = error
@@ -117,7 +116,7 @@ class Interpreter {
     if (runtimeResult.error) return runtimeResult
 
     var resultError: RuntimeError = null
-    if (node.operation_token.type === Tokens.MINUS) {
+    if (node.operation_token.type === 'MINUS') {
       const { number, error } = toChangeNumber.multipliedBy(new NumberClass(-1))
       toChangeNumber = number
       resultError = error

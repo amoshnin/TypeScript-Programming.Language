@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = void 0;
-const tokens_1 = require("../Base/tokens");
 const nodes_1 = require("../Parser/nodes");
 const errors_1 = require("../shared/errors");
 const RuntimeResult_1 = require("./RuntimeResult");
@@ -58,27 +57,27 @@ class Interpreter {
             return runtimeResult;
         var result = null;
         var resultError = null;
-        if (node.operationToken.type === tokens_1.Tokens.PLUS) {
+        if (node.operationToken.type === 'PLUS') {
             const { number, error } = left.addedTo(right);
             result = number;
             resultError = error;
         }
-        else if (node.operationToken.type === tokens_1.Tokens.MINUS) {
+        else if (node.operationToken.type === 'MINUS') {
             const { number, error } = left.subtractedBy(right);
             result = number;
             resultError = error;
         }
-        else if (node.operationToken.type === tokens_1.Tokens.MUL) {
+        else if (node.operationToken.type === 'MUL') {
             const { number, error } = left.multipliedBy(right);
             result = number;
             resultError = error;
         }
-        else if (node.operationToken.type === tokens_1.Tokens.DIV) {
+        else if (node.operationToken.type === 'DIV') {
             const { number, error } = left.dividedBy(right);
             result = number;
             resultError = error;
         }
-        else if (node.operationToken.type === tokens_1.Tokens.POW) {
+        else if (node.operationToken.type === 'POW') {
             const { number, error } = left.poweredBy(right);
             result = number;
             resultError = error;
@@ -96,7 +95,7 @@ class Interpreter {
         if (runtimeResult.error)
             return runtimeResult;
         var resultError = null;
-        if (node.operation_token.type === tokens_1.Tokens.MINUS) {
+        if (node.operation_token.type === 'MINUS') {
             const { number, error } = toChangeNumber.multipliedBy(new values_1.NumberClass(-1));
             toChangeNumber = number;
             resultError = error;
