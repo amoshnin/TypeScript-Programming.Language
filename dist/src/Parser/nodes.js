@@ -17,7 +17,7 @@ class BinaryOperationNode {
         this.rightNode = rightNode;
     }
     descr() {
-        return `(${this.leftNode}, ${this.operationToken}, ${this.rightNode})`;
+        return `(${this.leftNode.descr()}, ${this.operationToken.descr()}, ${this.rightNode.descr()})`;
     }
 }
 exports.BinaryOperationNode = BinaryOperationNode;
