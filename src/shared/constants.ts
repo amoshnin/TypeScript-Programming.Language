@@ -4,8 +4,8 @@ const DIGITS = '0123456789'
 const LETTERS = ascii_letters()
 const LETTERS_DIGITS = LETTERS + DIGITS
 
-type KeywordType = 'VAR'
-const KEYWORDS: Array<KeywordType> = ['VAR']
+type KeywordType = 'VAR' | 'AND' | 'OR' | 'NOT'
+const KEYWORDS: Array<KeywordType> = ['VAR', 'AND', 'OR', 'NOT']
 
 function ascii_letters() {
   const length = 26
