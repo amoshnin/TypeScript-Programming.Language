@@ -30,7 +30,7 @@ class BinaryOperationNode implements Display {
   }
 
   descr(): string {
-    return `(${this.leftNode}, ${this.operationToken}, ${this.rightNode})`
+    return `(${this.leftNode.descr()}, ${this.operationToken.descr()}, ${this.rightNode.descr()})`
   }
 }
 
