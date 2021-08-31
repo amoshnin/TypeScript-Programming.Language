@@ -1,7 +1,13 @@
 import { Position } from './position'
-import { Token } from './tokens'
+import { Token, TokenType } from './tokens'
 
-import { DIGITS } from '../shared/constants'
+import {
+  DIGITS,
+  LETTERS,
+  LETTERS_DIGITS,
+  KEYWORDS,
+  KeywordType,
+} from '../shared/constants'
 import { ErrorBase, IllegalCharError } from '../shared/errors'
 
 export class Lexer {
@@ -33,6 +39,8 @@ export class Lexer {
         this.advance()
       } else if (DIGITS.includes(this.currentChar)) {
         tokens.push(this.makeNumber())
+      } else if (LETTERS.includes(this.currentChar)) {
+        tokens.push(this.makeIdentifier())
       } else if (this.currentChar === '+') {
         tokens.push(new Token('PLUS', undefined, this.position))
         this.advance()
@@ -47,6 +55,9 @@ export class Lexer {
         this.advance()
       } else if (this.currentChar === '^') {
         tokens.push(new Token('POW', undefined, this.position))
+        this.advance()
+      } else if (this.currentChar === '=') {
+        tokens.push(new Token('EQ', undefined, this.position))
         this.advance()
       } else if (this.currentChar === '(') {
         tokens.push(new Token('LPAREN', undefined, this.position))
@@ -70,6 +81,25 @@ export class Lexer {
     }
     tokens.push(new Token('EOF', undefined, this.position))
     return { tokens, error: null }
+  }
+
+  makeIdentifier(): Token {
+    var idString = ''
+    let positionStart = this.position.copy()
+
+    while (
+      this.currentChar &&
+      `${LETTERS_DIGITS}_`.includes(this.currentChar)
+    ) {
+      idString += this.currentChar
+      this.advance()
+    }
+
+    let tokenType: TokenType = KEYWORDS.includes(idString as KeywordType)
+      ? 'KEYWORD'
+      : 'IDENTIFIER'
+
+    return new Token(tokenType, idString, positionStart, this.position)
   }
 
   makeNumber(): Token {

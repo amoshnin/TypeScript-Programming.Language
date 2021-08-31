@@ -31,6 +31,9 @@ class Lexer {
             else if (constants_1.DIGITS.includes(this.currentChar)) {
                 tokens.push(this.makeNumber());
             }
+            else if (constants_1.LETTERS.includes(this.currentChar)) {
+                tokens.push(this.makeIdentifier());
+            }
             else if (this.currentChar === '+') {
                 tokens.push(new tokens_1.Token('PLUS', undefined, this.position));
                 this.advance();
@@ -49,6 +52,10 @@ class Lexer {
             }
             else if (this.currentChar === '^') {
                 tokens.push(new tokens_1.Token('POW', undefined, this.position));
+                this.advance();
+            }
+            else if (this.currentChar === '=') {
+                tokens.push(new tokens_1.Token('EQ', undefined, this.position));
                 this.advance();
             }
             else if (this.currentChar === '(') {
@@ -71,6 +78,19 @@ class Lexer {
         }
         tokens.push(new tokens_1.Token('EOF', undefined, this.position));
         return { tokens, error: null };
+    }
+    makeIdentifier() {
+        var idString = '';
+        let positionStart = this.position.copy();
+        while (this.currentChar &&
+            `${constants_1.LETTERS_DIGITS}_`.includes(this.currentChar)) {
+            idString += this.currentChar;
+            this.advance();
+        }
+        let tokenType = constants_1.KEYWORDS.includes(idString)
+            ? 'KEYWORD'
+            : 'IDENTIFIER';
+        return new tokens_1.Token(tokenType, idString, positionStart, this.position);
     }
     makeNumber() {
         var numberStr = '';

@@ -5,17 +5,20 @@ const Tokens = {
     INT: 'INT',
     FLOAT: 'FLOAT',
     PLUS: 'PLUS',
+    IDENTIFIER: 'IDENTIFIER',
+    KEYWORD: 'KEYWORD',
     MINUS: 'MINUS',
     MUL: 'MUL',
     DIV: 'DIV',
     POW: 'POW',
+    EQ: 'EQ',
     LPAREN: 'LPAREN',
     RPAREN: 'RPAREN',
     EOF: 'EOF',
 };
 exports.Tokens = Tokens;
 class Token {
-    constructor(type, value = undefined, positionStart = undefined, positionEnd = undefined) {
+    constructor(type, value, positionStart, positionEnd) {
         this.type = type;
         this.value = value;
         if (positionStart) {
@@ -26,6 +29,9 @@ class Token {
         if (positionEnd) {
             this.positionEnd = positionEnd;
         }
+    }
+    matches(type, value) {
+        return this.type === type && this.value === value;
     }
     descr() {
         if (this.value) {

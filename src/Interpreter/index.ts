@@ -1,10 +1,12 @@
-import { Context } from '../Base/context'
+import { Context } from '../Context'
 import { Tokens } from '../Base/tokens'
 import {
   BinaryOperationNode,
   NodeType,
   NumberNode,
   UnaryOperationNode,
+  VarAccessNode,
+  VarAssignNode,
 } from '../Parser/nodes'
 import { RuntimeError } from '../shared/errors'
 import { RuntimeResult } from './RuntimeResult'
@@ -24,6 +26,43 @@ class Interpreter {
     if (node instanceof NumberNode) {
       return this.visitNumberNode(node, context) // => RuntimeResult(NumberClass)
     }
+    // Visit_VarAccessNode
+    if (node instanceof VarAccessNode) {
+      return this.visitVarAccessNode(node, context) // => RuntimeResult()
+    }
+    // Visit_VarAssignNode
+    if (node instanceof VarAssignNode) {
+      return this.visitVarAssignNode(node, context) // => RuntimeResult()
+    }
+  }
+
+  visitVarAccessNode(node: VarAccessNode, context: Context): RuntimeResult {
+    let result = new RuntimeResult()
+    let varName = node.varNameToken.value
+    var value = context.symbolTable.get(varName as string)
+
+    if (!value) {
+      return result.failure(
+        new RuntimeError(
+          node.positionStart,
+          node.positionEnd,
+          `'${varName}' is not defined`,
+          context,
+        ),
+      )
+    }
+    value = value.copy().setPosition(node.positionStart, node.positionEnd)
+    return result.success(value)
+  }
+
+  visitVarAssignNode(node: VarAssignNode, context: Context): RuntimeResult {
+    let result = new RuntimeResult()
+    let varName = node.varNameToken.value
+    let value = result.register(this.visit(node.valueNode, context))
+    if (result.error) return result
+
+    context.symbolTable.set(varName as string, value)
+    return result.success(value)
   }
 
   visitBinaryOperationNode(

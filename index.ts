@@ -14,5 +14,14 @@ rl.question('basic > ', (text: string) => {
   } else {
     console.log(result.descr())
   }
-  rl.close()
+  rl.question('basic > ', (text: string) => {
+    let { result, error } = run('<stdin>', text)
+
+    if (error) {
+      console.log('Error: ' + error.descr())
+    } else {
+      console.log(result.descr())
+    }
+    rl.close()
+  })
 })

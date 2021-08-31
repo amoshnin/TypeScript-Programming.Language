@@ -14,6 +14,15 @@ rl.question('basic > ', (text) => {
     else {
         console.log(result.descr());
     }
-    rl.close();
+    rl.question('basic > ', (text) => {
+        let { result, error } = (0, app_1.run)('<stdin>', text);
+        if (error) {
+            console.log('Error: ' + error.descr());
+        }
+        else {
+            console.log(result.descr());
+        }
+        rl.close();
+    });
 });
 //# sourceMappingURL=index.js.map

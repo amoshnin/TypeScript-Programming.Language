@@ -1,5 +1,11 @@
 import { Token, Tokens, TokenType } from '../base/tokens'
-import { BinaryOperationNode, NumberNode, UnaryOperationNode } from './nodes'
+import {
+  BinaryOperationNode,
+  NumberNode,
+  UnaryOperationNode,
+  VarAccessNode,
+  VarAssignNode,
+} from './nodes'
 import { InvalidSyntaxError } from '../Shared/errors'
 import { ParseResult } from './ParseResult'
 
@@ -64,11 +70,10 @@ class Parser {
     if (result.error) return result
     while (operations.includes(this.currentToken.type)) {
       let operation_token = this.currentToken
-      result.register(this.advance())
+      result.registerAdvancement()
+      this.advance()
       let right = result.register(s(rightFn))
-      if (result.error) {
-        return result
-      }
+      if (result.error) return result
       left = new BinaryOperationNode(left, operation_token, right)
     }
     return result.success(left)
@@ -79,14 +84,21 @@ class Parser {
     let token = this.currentToken
 
     if ([Tokens.INT, Tokens.FLOAT].includes(token.type)) {
-      result.register(this.advance())
+      result.registerAdvancement()
+      this.advance()
       return result.success(new NumberNode(token))
-    } else if (token.type === Tokens.LPAREN) {
-      result.register(this.advance())
+    } else if (token.type === 'IDENTIFIER') {
+      result.registerAdvancement()
+      this.advance()
+      return result.success(new VarAccessNode(token))
+    } else if (token.type === 'LPAREN') {
+      result.registerAdvancement()
+      this.advance()
       let expr = result.register(this.expr())
       if (result.error) return result
       if (this.currentToken.type === Tokens.RPAREN) {
-        result.register(this.advance())
+        result.registerAdvancement()
+        this.advance()
         return result.success(expr)
       } else {
         return result.failure(
@@ -103,24 +115,23 @@ class Parser {
       new InvalidSyntaxError(
         this.currentToken.positionStart,
         this.currentToken.positionEnd,
-        "Expected '+', '-', '*' or '/'",
+        "Expected int, float, identifier, '+', '-' or '('",
       ),
     )
   }
 
   power() {
-    return this.binaryOperation('ATOM', [Tokens.POW], 'FACTOR')
+    return this.binaryOperation('ATOM', ['POW'], 'FACTOR')
   }
 
   factor() {
     let result = new ParseResult()
     let token = this.currentToken
     if ([Tokens.PLUS, Tokens.MINUS].includes(token.type)) {
-      result.register(this.advance())
+      result.registerAdvancement()
+      this.advance()
       let factor = result.register(this.factor())
-      if (result.error) {
-        return result
-      }
+      if (result.error) return result
       return result.success(new UnaryOperationNode(token, factor))
     }
     return this.power()
@@ -131,7 +142,54 @@ class Parser {
   }
 
   expr(): ParseResult {
-    return this.binaryOperation('TERM', ['PLUS', 'MINUS'])
+    let result = new ParseResult()
+    if (this.currentToken.matches('KEYWORD', 'VAR')) {
+      result.registerAdvancement()
+      this.advance()
+
+      if (this.currentToken.type !== 'IDENTIFIER') {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            'Expected identifier',
+          ),
+        )
+      }
+
+      let varName = this.currentToken
+      result.registerAdvancement()
+      this.advance()
+
+      //@ts-ignore
+      if (this.currentToken.type !== 'EQ') {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected '='",
+          ),
+        )
+      }
+
+      result.registerAdvancement()
+      this.advance()
+      let expr = result.register(this.expr())
+      if (result.error) return result
+      return result.success(new VarAssignNode(varName, expr))
+    }
+
+    let node = result.register(this.binaryOperation('TERM', ['PLUS', 'MINUS']))
+    if (result.error) {
+      return result.failure(
+        new InvalidSyntaxError(
+          this.currentToken.positionStart,
+          this.currentToken.positionEnd,
+          "Expected 'VAR', int, float, identifier, '+', '-' or '('",
+        ),
+      )
+    }
+    return result.success(node)
   }
 }
 

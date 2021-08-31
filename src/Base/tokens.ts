@@ -1,14 +1,18 @@
+import { KeywordType } from '../shared/constants'
 import { Display } from '../Types'
 import { Position } from './position'
 
 type TokenType =
   | 'INT'
   | 'FLOAT'
+  | 'IDENTIFIER'
+  | 'KEYWORD'
   | 'PLUS'
   | 'MINUS'
   | 'MUL'
   | 'DIV'
   | 'POW'
+  | 'EQ'
   | 'LPAREN'
   | 'RPAREN'
   | 'EOF'
@@ -17,10 +21,13 @@ const Tokens: { [s: string]: TokenType } = {
   INT: 'INT',
   FLOAT: 'FLOAT',
   PLUS: 'PLUS',
+  IDENTIFIER: 'IDENTIFIER',
+  KEYWORD: 'KEYWORD',
   MINUS: 'MINUS',
   MUL: 'MUL',
   DIV: 'DIV',
   POW: 'POW',
+  EQ: 'EQ',
   LPAREN: 'LPAREN',
   RPAREN: 'RPAREN',
   EOF: 'EOF',
@@ -36,9 +43,9 @@ class Token implements Display {
 
   constructor(
     type: TokenType,
-    value: ValueType = undefined,
-    positionStart: Position = undefined,
-    positionEnd: Position = undefined,
+    value?: ValueType,
+    positionStart?: Position,
+    positionEnd?: Position,
   ) {
     this.type = type
     this.value = value
@@ -52,6 +59,10 @@ class Token implements Display {
     if (positionEnd) {
       this.positionEnd = positionEnd
     }
+  }
+
+  matches(type: TokenType, value: KeywordType) {
+    return this.type === type && this.value === value
   }
 
   descr(): string {

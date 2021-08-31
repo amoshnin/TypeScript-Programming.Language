@@ -67,4 +67,38 @@ class UnaryOperationNode implements Display, NodeType {
   }
 }
 
-export { NumberNode, BinaryOperationNode, UnaryOperationNode }
+class VarAccessNode implements NodeType {
+  varNameToken: Token
+
+  positionStart: Position
+  positionEnd: Position
+
+  constructor(varNameToken: Token) {
+    this.varNameToken = varNameToken
+    this.positionStart = this.varNameToken.positionStart
+    this.positionEnd = this.varNameToken.positionEnd
+  }
+}
+
+class VarAssignNode implements NodeType {
+  varNameToken: Token
+  valueNode
+
+  positionStart: Position
+  positionEnd: Position
+  constructor(varNameToken: Token, valueNode) {
+    this.varNameToken = varNameToken
+    this.valueNode = valueNode
+
+    this.positionStart = this.varNameToken.positionStart
+    this.positionEnd = this.valueNode.positionEnd
+  }
+}
+
+export {
+  NumberNode,
+  BinaryOperationNode,
+  UnaryOperationNode,
+  VarAccessNode,
+  VarAssignNode,
+}

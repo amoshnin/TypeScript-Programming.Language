@@ -1,4 +1,4 @@
-import { Context } from '../Base/context'
+import { Context } from '../Context'
 import { Position } from '../Base/position'
 import { RuntimeError } from '../shared/errors'
 import { Display } from '../Types'
@@ -18,6 +18,13 @@ class NumberClass implements Display {
 
   descr(): string {
     return String(this.value)
+  }
+
+  copy() {
+    let copy = new NumberClass(this.value)
+    copy.setPosition(this.positionStart, this.positionEnd)
+    copy.setContext(this.context)
+    return copy
   }
 
   setContext(context: Context = null): NumberClass {

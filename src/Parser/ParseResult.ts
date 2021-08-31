@@ -3,15 +3,18 @@ import { SomeNodeType } from '.'
 class ParseResult {
   error = null
   node = null
+  advanceCount = 0
 
-  register(result: SomeNodeType): SomeNodeType {
-    if (result instanceof ParseResult) {
-      if (result.error) {
-        this.error = result.error
-      }
-      return result.node
+  registerAdvancement() {
+    this.advanceCount += 1
+  }
+
+  register(result: ParseResult): SomeNodeType {
+    this.advanceCount += result.advanceCount
+    if (result.error) {
+      this.error = result.error
     }
-    return result
+    return result.node
   }
 
   success(node): ParseResult {
@@ -19,8 +22,10 @@ class ParseResult {
     return this
   }
 
-  failure(error): ParseResult {
-    this.error
+  failure(error?): ParseResult {
+    if (!this.error || this.advanceCount === 0) {
+      this.error = error
+    }
     return this
   }
 }

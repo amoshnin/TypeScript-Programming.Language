@@ -1,4 +1,4 @@
-import { Context } from '../Base/context'
+import { Context } from '../Context'
 import { Position } from '../Base/position'
 import { Display } from '../Types'
 import { stringWithArrows } from './Functions'

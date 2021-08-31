@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = void 0;
 const tokens_1 = require("../Base/tokens");
 const nodes_1 = require("../Parser/nodes");
+const errors_1 = require("../shared/errors");
 const RuntimeResult_1 = require("./RuntimeResult");
 const values_1 = require("./values");
 class Interpreter {
@@ -19,6 +20,33 @@ class Interpreter {
         if (node instanceof nodes_1.NumberNode) {
             return this.visitNumberNode(node, context); // => RuntimeResult(NumberClass)
         }
+        // Visit_VarAccessNode
+        if (node instanceof nodes_1.VarAccessNode) {
+            return this.visitVarAccessNode(node, context); // => RuntimeResult()
+        }
+        // Visit_VarAssignNode
+        if (node instanceof nodes_1.VarAssignNode) {
+            return this.visitVarAssignNode(node, context); // => RuntimeResult()
+        }
+    }
+    visitVarAccessNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        let varName = node.varNameToken.value;
+        var value = context.symbolTable.get(varName);
+        if (!value) {
+            return result.failure(new errors_1.RuntimeError(node.positionStart, node.positionEnd, `'${varName}' is not defined`, context));
+        }
+        value = value.copy().setPosition(node.positionStart, node.positionEnd);
+        return result.success(value);
+    }
+    visitVarAssignNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        let varName = node.varNameToken.value;
+        let value = result.register(this.visit(node.valueNode, context));
+        if (result.error)
+            return result;
+        context.symbolTable.set(varName, value);
+        return result.success(value);
     }
     visitBinaryOperationNode(node, context) {
         let runtimeResult = new RuntimeResult_1.RuntimeResult();

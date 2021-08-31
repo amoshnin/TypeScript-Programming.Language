@@ -1,9 +1,13 @@
-import { Context } from './Base/context'
+import { Context } from './Context'
 import { Lexer } from './Base/lexer'
 import { Interpreter } from './Interpreter'
 import { NumberClass } from './Interpreter/values'
 import { Parser } from './Parser'
 import { ErrorBase } from './shared/errors'
+import { SymbolTable } from './Context/symbolTable'
+
+const globalSymbolTable = new SymbolTable()
+globalSymbolTable.set('null', new NumberClass(0))
 
 export const run = (
   fileName: string,
@@ -22,6 +26,7 @@ export const run = (
   // Run progtram
   let interpreter = new Interpreter()
   let context = new Context('<program>')
+  context.symbolTable = globalSymbolTable
   let interpreterResult = interpreter.visit(astResult.node, context)
 
   return { result: interpreterResult.value, error: interpreterResult.error }

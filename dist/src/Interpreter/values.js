@@ -11,6 +11,12 @@ class NumberClass {
     descr() {
         return String(this.value);
     }
+    copy() {
+        let copy = new NumberClass(this.value);
+        copy.setPosition(this.positionStart, this.positionEnd);
+        copy.setContext(this.context);
+        return copy;
+    }
     setContext(context = null) {
         this.context = context;
         return this;
