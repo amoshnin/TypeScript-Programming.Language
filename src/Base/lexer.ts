@@ -52,13 +52,13 @@ export class Lexer {
         tokens.push(new Token('RPAREN'))
         this.advance()
       } else {
-        let position_start = this.position.copy()
+        let positionStart = this.position.copy()
         let char = this.currentChar
         this.advance()
         return {
           tokens: [],
           error: new IllegalCharError(
-            position_start,
+            positionStart,
             this.position,
             `'${char}'`,
           ),

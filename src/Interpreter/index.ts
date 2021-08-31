@@ -4,6 +4,7 @@ import {
   NumberNode,
   UnaryOperationNode,
 } from '../Parser/nodes'
+import { NumberClass } from './values'
 
 class Interpreter {
   visit(node: NodeType) {
@@ -28,6 +29,10 @@ class Interpreter {
 
   visitNumberNode(node: NumberNode) {
     console.log('Found visitNumberNode')
+    return new NumberClass(Number(node.token.value)).setPosition(
+      node.positionStart,
+      node.positionEnd,
+    )
   }
 }
 

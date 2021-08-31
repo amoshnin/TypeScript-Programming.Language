@@ -56,8 +56,8 @@ class Parser {
     if (!result.error && this.currentToken.type !== Tokens.EOF) {
       return result.failure(
         new InvalidSyntaxError(
-          this.currentToken.position_start,
-          this.currentToken.position_end,
+          this.currentToken.positionStart,
+          this.currentToken.positionEnd,
           "Expected '+', '-', '*' or '/'",
         ),
       )
@@ -115,8 +115,8 @@ class Parser {
         } else {
           return result.failure(
             new InvalidSyntaxError(
-              this.currentToken.position_start,
-              this.currentToken.position_end,
+              this.currentToken.positionStart,
+              this.currentToken.positionEnd,
               "Expected ')'",
             ),
           )
@@ -125,8 +125,8 @@ class Parser {
 
       return result.failure(
         new InvalidSyntaxError(
-          token.position_start,
-          token.position_end,
+          token.positionStart,
+          token.positionEnd,
           'Expected int or float',
         ),
       )

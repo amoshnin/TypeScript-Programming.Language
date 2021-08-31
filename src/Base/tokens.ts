@@ -29,26 +29,26 @@ class Token implements Display {
   type: TokenType
   value: ValueType
 
-  position_start: Position
-  position_end: Position
+  positionStart: Position
+  positionEnd: Position
 
   constructor(
     type: TokenType,
     value: ValueType = undefined,
-    position_start: Position = undefined,
-    position_end: Position = undefined,
+    positionStart: Position = undefined,
+    positionEnd: Position = undefined,
   ) {
     this.type = type
     this.value = value
 
-    if (position_start) {
-      this.position_start = position_start.copy()
-      this.position_end = position_start.copy()
-      this.position_end.advance()
+    if (positionStart) {
+      this.positionStart = positionStart.copy()
+      this.positionEnd = positionStart.copy()
+      this.positionEnd.advance()
     }
 
-    if (position_end) {
-      this.position_end = position_end
+    if (positionEnd) {
+      this.positionEnd = positionEnd
     }
   }
 

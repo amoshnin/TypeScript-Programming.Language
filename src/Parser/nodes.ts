@@ -1,13 +1,19 @@
 import { SomeNodeType } from '.'
+import { Position } from '../Base/position'
 import { Token } from '../base/tokens'
 import { Display } from '../Types'
 
 export interface NodeType {}
 class NumberNode implements Display, NodeType {
   token: Token
+  positionStart: Position
+  positionEnd: Position
 
   constructor(token: Token) {
     this.token = token
+
+    this.positionStart = this.token.positionStart
+    this.positionEnd = this.token.positionEnd
   }
 
   descr(): string {
@@ -20,6 +26,9 @@ class BinaryOperationNode implements Display, NodeType {
   operationToken
   rightNode
 
+  positionStart: Position
+  positionEnd: Position
+
   constructor(
     leftNode: SomeNodeType,
     operationToken: Token | undefined,
@@ -28,6 +37,9 @@ class BinaryOperationNode implements Display, NodeType {
     this.leftNode = leftNode
     this.operationToken = operationToken
     this.rightNode = rightNode
+
+    this.positionStart = this.leftNode.positionStart
+    this.positionEnd = this.rightNode.positionEnd
   }
 
   descr(): string {
@@ -39,9 +51,15 @@ class UnaryOperationNode implements Display, NodeType {
   operation_token
   node
 
+  positionStart: Position
+  positionEnd: Position
+
   constructor(operation_token, node) {
     this.operation_token = operation_token
     this.node = node
+
+    this.positionStart = this.operation_token.positionStart
+    this.positionEnd = this.node.positionEnd
   }
 
   descr(): string {
