@@ -2,7 +2,8 @@ import { SomeNodeType } from '.'
 import { Token } from '../base/tokens'
 import { Display } from '../Types'
 
-class NumberNode implements Display {
+export interface NodeType {}
+class NumberNode implements Display, NodeType {
   token: Token
 
   constructor(token: Token) {
@@ -14,7 +15,7 @@ class NumberNode implements Display {
   }
 }
 
-class BinaryOperationNode implements Display {
+class BinaryOperationNode implements Display, NodeType {
   leftNode
   operationToken
   rightNode
@@ -34,7 +35,7 @@ class BinaryOperationNode implements Display {
   }
 }
 
-class UnaryOperationNode implements Display {
+class UnaryOperationNode implements Display, NodeType {
   operation_token
   node
 
