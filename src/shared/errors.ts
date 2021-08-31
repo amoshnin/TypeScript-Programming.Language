@@ -25,11 +25,11 @@ class ErrorBase implements Display {
     result += `File: ${this.positionStart.fileName}, `
     result += `line: ${this.positionStart.line + 1}, `
     result += `column: ${this.positionStart.column + 1}`
-    result += `\n\n${stringWithArrows(
-      this.positionStart.fileText,
-      this.positionStart,
-      this.positionEnd,
-    )}`
+    // result += `\n\n${stringWithArrows(
+    //   this.positionStart.fileText,
+    //   this.positionStart,
+    //   this.positionEnd,
+    // )}`
     return result
   }
 }
@@ -46,4 +46,10 @@ class InvalidSyntaxError extends ErrorBase {
   }
 }
 
-export { ErrorBase, IllegalCharError, InvalidSyntaxError }
+class RuntimeError extends ErrorBase {
+  constructor(positionStart: Position, positionEnd: Position, details: string) {
+    super(positionStart, positionEnd, 'Runtime Error', details)
+  }
+}
+
+export { ErrorBase, IllegalCharError, InvalidSyntaxError, RuntimeError }

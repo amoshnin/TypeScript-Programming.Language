@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NumberClass = void 0;
+const errors_1 = require("../shared/errors");
 class NumberClass {
     constructor(value) {
         this.value = value;
@@ -16,22 +17,33 @@ class NumberClass {
     }
     addedTo(other) {
         if (other instanceof NumberClass) {
-            return new NumberClass(this.value + other.value);
+            return { number: new NumberClass(this.value + other.value), error: null };
         }
     }
     subtractedBy(other) {
         if (other instanceof NumberClass) {
-            return new NumberClass(this.value - other.value);
+            return { number: new NumberClass(this.value - other.value), error: null };
         }
     }
     multipliedBy(other) {
         if (other instanceof NumberClass) {
-            return new NumberClass(this.value * other.value);
+            return { number: new NumberClass(this.value * other.value), error: null };
         }
     }
     dividedBy(other) {
         if (other instanceof NumberClass) {
-            return new NumberClass(this.value / other.value);
+            if (other.value === 0) {
+                return {
+                    number: null,
+                    error: new errors_1.RuntimeError(other.positionStart, other.positionEnd, 'Division by zero'),
+                };
+            }
+            else {
+                return {
+                    number: new NumberClass(this.value / other.value),
+                    error: null,
+                };
+            }
         }
     }
 }

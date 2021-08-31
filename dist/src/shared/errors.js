@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InvalidSyntaxError = exports.IllegalCharError = exports.ErrorBase = void 0;
-const Functions_1 = require("./Functions");
+exports.RuntimeError = exports.InvalidSyntaxError = exports.IllegalCharError = exports.ErrorBase = void 0;
 class ErrorBase {
     constructor(positionStart, positionEnd, error_name, details) {
         this.positionStart = positionStart;
@@ -14,7 +13,11 @@ class ErrorBase {
         result += `File: ${this.positionStart.fileName}, `;
         result += `line: ${this.positionStart.line + 1}, `;
         result += `column: ${this.positionStart.column + 1}`;
-        result += `\n\n${(0, Functions_1.stringWithArrows)(this.positionStart.fileText, this.positionStart, this.positionEnd)}`;
+        // result += `\n\n${stringWithArrows(
+        //   this.positionStart.fileText,
+        //   this.positionStart,
+        //   this.positionEnd,
+        // )}`
         return result;
     }
 }
@@ -31,4 +34,10 @@ class InvalidSyntaxError extends ErrorBase {
     }
 }
 exports.InvalidSyntaxError = InvalidSyntaxError;
+class RuntimeError extends ErrorBase {
+    constructor(positionStart, positionEnd, details) {
+        super(positionStart, positionEnd, 'Runtime Error', details);
+    }
+}
+exports.RuntimeError = RuntimeError;
 //# sourceMappingURL=errors.js.map

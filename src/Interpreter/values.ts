@@ -1,6 +1,8 @@
 import { Position } from '../Base/position'
+import { RuntimeError } from '../shared/errors'
 import { Display } from '../Types'
 
+type ReturnType = { number: NumberClass | null; error: RuntimeError | null }
 class NumberClass implements Display {
   value: number
   positionStart: Position
@@ -21,27 +23,41 @@ class NumberClass implements Display {
     return this
   }
 
-  addedTo(other: NumberClass): NumberClass {
+  addedTo(other: NumberClass): ReturnType {
     if (other instanceof NumberClass) {
-      return new NumberClass(this.value + other.value)
+      return { number: new NumberClass(this.value + other.value), error: null }
     }
   }
 
-  subtractedBy(other: NumberClass): NumberClass {
+  subtractedBy(other: NumberClass): ReturnType {
     if (other instanceof NumberClass) {
-      return new NumberClass(this.value - other.value)
+      return { number: new NumberClass(this.value - other.value), error: null }
     }
   }
 
-  multipliedBy(other: NumberClass): NumberClass {
+  multipliedBy(other: NumberClass): ReturnType {
     if (other instanceof NumberClass) {
-      return new NumberClass(this.value * other.value)
+      return { number: new NumberClass(this.value * other.value), error: null }
     }
   }
 
-  dividedBy(other: NumberClass): NumberClass {
+  dividedBy(other: NumberClass): ReturnType {
     if (other instanceof NumberClass) {
-      return new NumberClass(this.value / other.value)
+      if (other.value === 0) {
+        return {
+          number: null,
+          error: new RuntimeError(
+            other.positionStart,
+            other.positionEnd,
+            'Division by zero',
+          ),
+        }
+      } else {
+        return {
+          number: new NumberClass(this.value / other.value),
+          error: null,
+        }
+      }
     }
   }
 }

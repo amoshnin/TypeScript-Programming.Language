@@ -10,17 +10,17 @@ export const run = (
 ): { result: NumberClass | null; error: ErrorBase | null } => {
   // Generate tokens
   const lexer = new Lexer(fileName, text)
-  const { tokens, error } = lexer.makeTokens()
-  if (error) return { result: null, error }
+  const lexerResult = lexer.makeTokens()
+  if (lexerResult.error) return { result: null, error: lexerResult.error }
 
   // Generate AST (Abstract Syntax Tree)
-  let parser = new Parser(tokens)
-  let ast = parser.parse()
-  if (ast.error) return { result: null, error }
+  let parser = new Parser(lexerResult.tokens)
+  let astResult = parser.parse()
+  if (astResult.error) return { result: null, error: astResult.error }
 
   // Run progtram
   let interpreter = new Interpreter()
-  let result = interpreter.visit(ast.node)
+  let interpreterResult = interpreter.visit(astResult.node)
 
-  return { result: result, error: null }
+  return { result: interpreterResult.value, error: interpreterResult.error }
 }

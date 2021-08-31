@@ -3,49 +3,80 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = void 0;
 const tokens_1 = require("../Base/tokens");
 const nodes_1 = require("../Parser/nodes");
+const RuntimeResult_1 = require("./RuntimeResult");
 const values_1 = require("./values");
 class Interpreter {
     visit(node) {
         // Visit_BinaryOperationNode
         if (node instanceof nodes_1.BinaryOperationNode) {
-            return this.visitBinaryOperationNode(node); // => NumberClass
+            return this.visitBinaryOperationNode(node); // => RuntimeResult(NumberClass)
         }
         // Visit_UnaryOperationNode
         if (node instanceof nodes_1.UnaryOperationNode) {
-            return this.visitUnaryOperationNode(node); // => NumberClass
+            return this.visitUnaryOperationNode(node); // => RuntimeResult(NumberClass)
         }
         // Visit_NumberNode
         if (node instanceof nodes_1.NumberNode) {
-            return this.visitNumberNode(node); // => NumberClass
+            return this.visitNumberNode(node); // => RuntimeResult(NumberClass)
         }
     }
     visitBinaryOperationNode(node) {
-        let left = this.visit(node.leftNode);
-        let right = this.visit(node.rightNode);
-        var result;
+        let runtimeResult = new RuntimeResult_1.RuntimeResult();
+        let left = runtimeResult.register(this.visit(node.leftNode));
+        if (runtimeResult.error)
+            return runtimeResult;
+        let right = runtimeResult.register(this.visit(node.rightNode));
+        if (runtimeResult.error)
+            return runtimeResult;
+        var result = null;
+        var resultError = null;
         if (node.operationToken.type === tokens_1.Tokens.PLUS) {
-            result = left.addedTo(right);
+            const { number, error } = left.addedTo(right);
+            result = number;
+            resultError = error;
         }
         else if (node.operationToken.type === tokens_1.Tokens.MINUS) {
-            result = left.subtractedBy(right);
+            const { number, error } = left.subtractedBy(right);
+            result = number;
+            resultError = error;
         }
         else if (node.operationToken.type === tokens_1.Tokens.MUL) {
-            result = left.multipliedBy(right);
+            const { number, error } = left.multipliedBy(right);
+            result = number;
+            resultError = error;
         }
         else if (node.operationToken.type === tokens_1.Tokens.DIV) {
-            result = left.dividedBy(right);
+            const { number, error } = left.dividedBy(right);
+            result = number;
+            resultError = error;
         }
-        return result.setPosition(node.positionStart, node.positionEnd);
+        if (resultError) {
+            return runtimeResult.failure(resultError);
+        }
+        else {
+            return runtimeResult.success(result.setPosition(node.positionStart, node.positionEnd));
+        }
     }
     visitUnaryOperationNode(node) {
-        var number = this.visit(node.node);
+        let runtimeResult = new RuntimeResult_1.RuntimeResult();
+        var toChangeNumber = runtimeResult.register(this.visit(node.node));
+        if (runtimeResult.error)
+            return runtimeResult;
+        var resultError = null;
         if (node.operation_token.type === tokens_1.Tokens.MINUS) {
-            number = number.multipliedBy(new values_1.NumberClass(-1));
+            const { number, error } = toChangeNumber.multipliedBy(new values_1.NumberClass(-1));
+            toChangeNumber = number;
+            resultError = error;
         }
-        return number.setPosition(node.positionStart, node.positionEnd);
+        if (resultError) {
+            return runtimeResult.failure(resultError);
+        }
+        else {
+            return runtimeResult.success(toChangeNumber.setPosition(node.positionStart, node.positionEnd));
+        }
     }
     visitNumberNode(node) {
-        return new values_1.NumberClass(Number(node.token.value)).setPosition(node.positionStart, node.positionEnd);
+        return new RuntimeResult_1.RuntimeResult().success(new values_1.NumberClass(Number(node.token.value)).setPosition(node.positionStart, node.positionEnd));
     }
 }
 exports.Interpreter = Interpreter;

@@ -1,6 +1,7 @@
 import { Token, Tokens, TokenType } from '../base/tokens'
 import { BinaryOperationNode, NumberNode, UnaryOperationNode } from './nodes'
 import { InvalidSyntaxError } from '../Shared/errors'
+import { ParseResult } from './ParseResult'
 
 export type SomeNodeType =
   | NumberNode
@@ -8,30 +9,6 @@ export type SomeNodeType =
   | Token
   | ParseResult
 
-class ParseResult {
-  error = null
-  node = null
-
-  register(result: SomeNodeType): SomeNodeType {
-    if (result instanceof ParseResult) {
-      if (result.error) {
-        this.error = result.error
-      }
-      return result.node
-    }
-    return result
-  }
-
-  success(node): ParseResult {
-    this.node = node
-    return this
-  }
-
-  failure(error): ParseResult {
-    this.error
-    return this
-  }
-}
 class Parser {
   tokens: Array<Token>
   tokenIndex: number = -1

@@ -4,29 +4,7 @@ exports.Parser = void 0;
 const tokens_1 = require("../base/tokens");
 const nodes_1 = require("./nodes");
 const errors_1 = require("../Shared/errors");
-class ParseResult {
-    constructor() {
-        this.error = null;
-        this.node = null;
-    }
-    register(result) {
-        if (result instanceof ParseResult) {
-            if (result.error) {
-                this.error = result.error;
-            }
-            return result.node;
-        }
-        return result;
-    }
-    success(node) {
-        this.node = node;
-        return this;
-    }
-    failure(error) {
-        this.error;
-        return this;
-    }
-}
+const ParseResult_1 = require("./ParseResult");
 class Parser {
     constructor(tokens) {
         this.tokenIndex = -1;
@@ -49,7 +27,7 @@ class Parser {
         return result;
     }
     binaryOperation(typeFn, operations) {
-        let result = new ParseResult();
+        let result = new ParseResult_1.ParseResult();
         var left = result.register(typeFn === 'FACTOR' ? this.factor() : this.term());
         if (result.error)
             return result;
@@ -65,7 +43,7 @@ class Parser {
         return result.success(left);
     }
     factor() {
-        let result = new ParseResult();
+        let result = new ParseResult_1.ParseResult();
         let token = this.currentToken;
         if (token) {
             if ([tokens_1.Tokens.PLUS, tokens_1.Tokens.MINUS].includes(token.type)) {
