@@ -1,5 +1,4 @@
 import { Position } from '../Base/position'
-import { isNumber } from '../Shared/Functions'
 import { Display } from '../Types'
 
 class NumberClass implements Display {
@@ -22,27 +21,27 @@ class NumberClass implements Display {
     return this
   }
 
-  addedTo(other: number): number {
-    if (isNumber(other)) {
-      return Number(this.value + other)
+  addedTo(other: NumberClass): number {
+    if (other instanceof NumberClass) {
+      return Number(this.value + other.value)
     }
   }
 
-  subtractedBy(other: number): number {
-    if (isNumber(other)) {
-      return Number(this.value - other)
+  subtractedBy(other: NumberClass): number {
+    if (other instanceof NumberClass) {
+      return Number(this.value - other.value)
     }
   }
 
-  multipliedBy(other: number): number {
-    if (isNumber(other)) {
-      return Number(this.value * other)
+  multipliedBy(other: NumberClass): number {
+    if (other instanceof NumberClass) {
+      return Number(this.value * other.value)
     }
   }
 
-  dividedBy(other: number): number {
-    if (isNumber(other)) {
-      return Number(this.value / other)
+  dividedBy(other: NumberClass): number {
+    if (other instanceof NumberClass) {
+      return Number(this.value / other.value)
     }
   }
 }

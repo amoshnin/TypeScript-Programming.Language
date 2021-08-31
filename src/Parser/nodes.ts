@@ -23,7 +23,7 @@ class NumberNode implements Display, NodeType {
 
 class BinaryOperationNode implements Display, NodeType {
   leftNode
-  operationToken
+  operationToken: Token
   rightNode
 
   positionStart: Position
