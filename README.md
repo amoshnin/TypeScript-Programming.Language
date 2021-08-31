@@ -19,7 +19,7 @@ specified upon declaration.
 Below is the language's EBNF-based grammar, and following that are some examples of programs that the language can run.
 Even further down is a link to a repl.it where the programs can be run.
 
-### Parsing
+### Parser
 
 Parser builds up a syntax tree of the program from the tokens created by the Lexer.
 The parses has to figure out if the tokens match out language grammar. If it does, generate a tree accordingly.
@@ -32,6 +32,10 @@ In other words, order of operations are being followed and the parses construct 
 To understand the source code of the parser, I below illustrated the grammar of a mathematical expression that is being analyzed while parsing to ensure that the order of operations are followed:
 
 <img src="./img/parser_order_of_operations.jpeg" alt="Parser image (of mathematical expression)" style="width:200px;" />
+
+### Interpreter
+
+The role of the interpreter is to traverse through the AST (Abstract Syntax Tree) that the parser builds, look for different node types and determine what code should be executed. For example, if it comes across a binary operation node with a '+' operator - it will add its left and right child nodes together. The AST (Abstract Syntax Tree) will allow the interpreter to follow the order of operations correctly.
 
 ## Grammar
 
