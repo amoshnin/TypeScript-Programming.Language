@@ -4,6 +4,8 @@ exports.UnaryOperationNode = exports.BinaryOperationNode = exports.NumberNode = 
 class NumberNode {
     constructor(token) {
         this.token = token;
+        this.positionStart = this.token.positionStart;
+        this.positionEnd = this.token.positionEnd;
     }
     descr() {
         return this.token.descr();
@@ -15,6 +17,8 @@ class BinaryOperationNode {
         this.leftNode = leftNode;
         this.operationToken = operationToken;
         this.rightNode = rightNode;
+        this.positionStart = this.leftNode.positionStart;
+        this.positionEnd = this.rightNode.positionEnd;
     }
     descr() {
         return `(${this.leftNode.descr()}, ${this.operationToken.descr()}, ${this.rightNode.descr()})`;
@@ -25,6 +29,8 @@ class UnaryOperationNode {
     constructor(operation_token, node) {
         this.operation_token = operation_token;
         this.node = node;
+        this.positionStart = this.operation_token.positionStart;
+        this.positionEnd = this.node.positionEnd;
     }
     descr() {
         return `(${this.operation_token}, ${this.node})`;

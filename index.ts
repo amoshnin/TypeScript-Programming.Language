@@ -7,12 +7,12 @@ const rl = readline.createInterface({
 })
 
 rl.question('basic > ', (text: string) => {
-  let { tokens, error } = run('<stdin>', text)
+  let { result, error } = run('<stdin>', text)
 
   if (error) {
     console.log('Error: ' + error.descr())
   } else {
-    console.log(tokens)
+    console.log(result.descr())
   }
   rl.close()
 })

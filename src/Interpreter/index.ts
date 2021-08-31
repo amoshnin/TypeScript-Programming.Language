@@ -8,14 +8,14 @@ import {
 import { NumberClass } from './values'
 
 class Interpreter {
-  visit(node: NodeType): NumberClass | void {
+  visit(node: NodeType): NumberClass {
     // Visit_BinaryOperationNode
     if (node instanceof BinaryOperationNode) {
-      return this.visitBinaryOperationNode(node) // =>
+      return this.visitBinaryOperationNode(node) // => NumberClass
     }
     // Visit_UnaryOperationNode
     if (node instanceof UnaryOperationNode) {
-      return this.visitUnaryOperationNode(node) // =>
+      return this.visitUnaryOperationNode(node) // => NumberClass
     }
     // Visit_NumberNode
     if (node instanceof NumberNode) {
@@ -23,12 +23,11 @@ class Interpreter {
     }
   }
 
-  visitBinaryOperationNode(node: BinaryOperationNode) {
-    console.log('Found visitBinaryOperationNode')
+  visitBinaryOperationNode(node: BinaryOperationNode): NumberClass {
     let left = this.visit(node.leftNode) as NumberClass
     let right = this.visit(node.rightNode) as NumberClass
 
-    var result
+    var result: NumberClass
     if (node.operationToken.type === Tokens.PLUS) {
       result = left.addedTo(right)
     } else if (node.operationToken.type === Tokens.MINUS) {
@@ -39,16 +38,18 @@ class Interpreter {
       result = left.dividedBy(right)
     }
 
-    return result
+    return result.setPosition(node.positionStart, node.positionEnd)
   }
 
-  visitUnaryOperationNode(node: UnaryOperationNode) {
-    console.log('Found visitUnaryOperationNode')
-    this.visit(node.node)
+  visitUnaryOperationNode(node: UnaryOperationNode): NumberClass {
+    var number = this.visit(node.node) as NumberClass
+    if (node.operation_token === Tokens.MINUS) {
+      number = number.multipliedBy(new NumberClass(-1))
+    }
+    return number.setPosition(node.positionStart, node.positionEnd)
   }
 
   visitNumberNode(node: NumberNode): NumberClass {
-    console.log('Found visitNumberNode')
     return new NumberClass(Number(node.token.value)).setPosition(
       node.positionStart,
       node.positionEnd,

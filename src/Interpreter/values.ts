@@ -21,27 +21,27 @@ class NumberClass implements Display {
     return this
   }
 
-  addedTo(other: NumberClass): number {
+  addedTo(other: NumberClass): NumberClass {
     if (other instanceof NumberClass) {
-      return Number(this.value + other.value)
+      return new NumberClass(this.value + other.value)
     }
   }
 
-  subtractedBy(other: NumberClass): number {
+  subtractedBy(other: NumberClass): NumberClass {
     if (other instanceof NumberClass) {
-      return Number(this.value - other.value)
+      return new NumberClass(this.value - other.value)
     }
   }
 
-  multipliedBy(other: NumberClass): number {
+  multipliedBy(other: NumberClass): NumberClass {
     if (other instanceof NumberClass) {
-      return Number(this.value * other.value)
+      return new NumberClass(this.value * other.value)
     }
   }
 
-  dividedBy(other: NumberClass): number {
+  dividedBy(other: NumberClass): NumberClass {
     if (other instanceof NumberClass) {
-      return Number(this.value / other.value)
+      return new NumberClass(this.value / other.value)
     }
   }
 }
