@@ -53,6 +53,11 @@ class RuntimeError extends ErrorBase {
     descr() {
         var result = this.generateTraceback();
         result += `${this.error_name}: ${this.details}\n`;
+        // result += `\n\n${stringWithArrows(
+        //   this.positionStart.fileText,
+        //   this.positionStart,
+        //   this.positionEnd,
+        // )}`
         return result;
     }
 }

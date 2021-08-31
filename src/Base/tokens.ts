@@ -8,6 +8,7 @@ type TokenType =
   | 'MINUS'
   | 'MUL'
   | 'DIV'
+  | 'POW'
   | 'LPAREN'
   | 'RPAREN'
   | 'EOF'
@@ -19,6 +20,7 @@ const Tokens: { [s: string]: TokenType } = {
   MINUS: 'MINUS',
   MUL: 'MUL',
   DIV: 'DIV',
+  POW: 'POW',
   LPAREN: 'LPAREN',
   RPAREN: 'RPAREN',
   EOF: 'EOF',

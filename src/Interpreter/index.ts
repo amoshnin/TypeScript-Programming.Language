@@ -54,6 +54,10 @@ class Interpreter {
       const { number, error } = left.dividedBy(right)
       result = number
       resultError = error
+    } else if (node.operationToken.type === Tokens.POW) {
+      const { number, error } = left.poweredBy(right)
+      result = number
+      resultError = error
     }
 
     if (resultError) {

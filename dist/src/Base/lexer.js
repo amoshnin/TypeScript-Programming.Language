@@ -47,6 +47,10 @@ class Lexer {
                 tokens.push(new tokens_1.Token('DIV', undefined, this.position));
                 this.advance();
             }
+            else if (this.currentChar === '^') {
+                tokens.push(new tokens_1.Token('POW', undefined, this.position));
+                this.advance();
+            }
             else if (this.currentChar === '(') {
                 tokens.push(new tokens_1.Token('LPAREN', undefined, this.position));
                 this.advance();

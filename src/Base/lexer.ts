@@ -45,6 +45,9 @@ export class Lexer {
       } else if (this.currentChar === '/') {
         tokens.push(new Token('DIV', undefined, this.position))
         this.advance()
+      } else if (this.currentChar === '^') {
+        tokens.push(new Token('POW', undefined, this.position))
+        this.advance()
       } else if (this.currentChar === '(') {
         tokens.push(new Token('LPAREN', undefined, this.position))
         this.advance()

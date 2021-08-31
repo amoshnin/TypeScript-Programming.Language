@@ -86,6 +86,17 @@ class NumberClass implements Display {
       }
     }
   }
+
+  poweredBy(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(this.value ** other.value).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
 }
 
 export { NumberClass }

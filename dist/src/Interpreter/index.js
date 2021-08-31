@@ -50,6 +50,11 @@ class Interpreter {
             result = number;
             resultError = error;
         }
+        else if (node.operationToken.type === tokens_1.Tokens.POW) {
+            const { number, error } = left.poweredBy(right);
+            result = number;
+            resultError = error;
+        }
         if (resultError) {
             return runtimeResult.failure(resultError);
         }

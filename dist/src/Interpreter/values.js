@@ -60,6 +60,14 @@ class NumberClass {
             }
         }
     }
+    poweredBy(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Math.pow(this.value, other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
 }
 exports.NumberClass = NumberClass;
 //# sourceMappingURL=values.js.map

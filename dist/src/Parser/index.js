@@ -26,15 +26,25 @@ class Parser {
         }
         return result;
     }
-    binaryOperation(typeFn, operations) {
+    binaryOperation(leftFn, operations, rightFn) {
+        const s = (x) => {
+            return x === 'FACTOR'
+                ? this.factor()
+                : x === 'ATOM'
+                    ? this.atom()
+                    : this.term();
+        };
+        if (!rightFn) {
+            rightFn = leftFn;
+        }
         let result = new ParseResult_1.ParseResult();
-        var left = result.register(typeFn === 'FACTOR' ? this.factor() : this.term());
+        var left = result.register(s(leftFn));
         if (result.error)
             return result;
         while (operations.includes(this.currentToken.type)) {
             let operation_token = this.currentToken;
             result.register(this.advance());
-            let right = result.register(typeFn === 'FACTOR' ? this.factor() : this.term());
+            let right = result.register(s(rightFn));
             if (result.error) {
                 return result;
             }
@@ -42,38 +52,43 @@ class Parser {
         }
         return result.success(left);
     }
+    atom() {
+        let result = new ParseResult_1.ParseResult();
+        let token = this.currentToken;
+        if ([tokens_1.Tokens.INT, tokens_1.Tokens.FLOAT].includes(token.type)) {
+            result.register(this.advance());
+            return result.success(new nodes_1.NumberNode(token));
+        }
+        else if (token.type === tokens_1.Tokens.LPAREN) {
+            result.register(this.advance());
+            let expr = result.register(this.expr());
+            if (result.error)
+                return result;
+            if (this.currentToken.type === tokens_1.Tokens.RPAREN) {
+                result.register(this.advance());
+                return result.success(expr);
+            }
+            else {
+                return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')'"));
+            }
+        }
+        return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '+', '-', '*' or '/'"));
+    }
+    power() {
+        return this.binaryOperation('ATOM', [tokens_1.Tokens.POW], 'FACTOR');
+    }
     factor() {
         let result = new ParseResult_1.ParseResult();
         let token = this.currentToken;
-        if (token) {
-            if ([tokens_1.Tokens.PLUS, tokens_1.Tokens.MINUS].includes(token.type)) {
-                result.register(this.advance());
-                let factor = result.register(this.factor());
-                if (result.error) {
-                    return result;
-                }
-                return result.success(new nodes_1.UnaryOperationNode(token, factor));
+        if ([tokens_1.Tokens.PLUS, tokens_1.Tokens.MINUS].includes(token.type)) {
+            result.register(this.advance());
+            let factor = result.register(this.factor());
+            if (result.error) {
+                return result;
             }
-            else if ([tokens_1.Tokens.INT, tokens_1.Tokens.FLOAT].includes(token.type)) {
-                result.register(this.advance());
-                return result.success(new nodes_1.NumberNode(token));
-            }
-            else if (token.type === tokens_1.Tokens.LPAREN) {
-                result.register(this.advance());
-                let expr = result.register(this.expr());
-                if (result.error) {
-                    return result;
-                }
-                if (this.currentToken.type === tokens_1.Tokens.RPAREN) {
-                    result.register(this.advance());
-                    return result.success(expr);
-                }
-                else {
-                    return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')'"));
-                }
-            }
-            return result.failure(new errors_1.InvalidSyntaxError(token.positionStart, token.positionEnd, 'Expected int or float'));
+            return result.success(new nodes_1.UnaryOperationNode(token, factor));
         }
+        return this.power();
     }
     term() {
         return this.binaryOperation('FACTOR', ['MUL', 'DIV']);

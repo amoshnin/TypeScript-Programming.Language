@@ -43,20 +43,29 @@ class Parser {
   }
 
   binaryOperation(
-    typeFn: 'FACTOR' | 'TERM',
+    leftFn: 'FACTOR' | 'TERM' | 'ATOM',
     operations: Array<TokenType>,
+    rightFn?: 'FACTOR' | 'TERM' | 'ATOM',
   ): ParseResult {
+    const s = (x: 'FACTOR' | 'TERM' | 'ATOM') => {
+      return x === 'FACTOR'
+        ? this.factor()
+        : x === 'ATOM'
+        ? this.atom()
+        : this.term()
+    }
+
+    if (!rightFn) {
+      rightFn = leftFn
+    }
+
     let result = new ParseResult()
-    var left = result.register(
-      typeFn === 'FACTOR' ? this.factor() : this.term(),
-    )
+    var left = result.register(s(leftFn))
     if (result.error) return result
     while (operations.includes(this.currentToken.type)) {
       let operation_token = this.currentToken
       result.register(this.advance())
-      let right = result.register(
-        typeFn === 'FACTOR' ? this.factor() : this.term(),
-      )
+      let right = result.register(s(rightFn))
       if (result.error) {
         return result
       }
@@ -65,49 +74,56 @@ class Parser {
     return result.success(left)
   }
 
+  atom() {
+    let result = new ParseResult()
+    let token = this.currentToken
+
+    if ([Tokens.INT, Tokens.FLOAT].includes(token.type)) {
+      result.register(this.advance())
+      return result.success(new NumberNode(token))
+    } else if (token.type === Tokens.LPAREN) {
+      result.register(this.advance())
+      let expr = result.register(this.expr())
+      if (result.error) return result
+      if (this.currentToken.type === Tokens.RPAREN) {
+        result.register(this.advance())
+        return result.success(expr)
+      } else {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected ')'",
+          ),
+        )
+      }
+    }
+
+    return result.failure(
+      new InvalidSyntaxError(
+        this.currentToken.positionStart,
+        this.currentToken.positionEnd,
+        "Expected '+', '-', '*' or '/'",
+      ),
+    )
+  }
+
+  power() {
+    return this.binaryOperation('ATOM', [Tokens.POW], 'FACTOR')
+  }
+
   factor() {
     let result = new ParseResult()
-
     let token = this.currentToken
-    if (token) {
-      if ([Tokens.PLUS, Tokens.MINUS].includes(token.type)) {
-        result.register(this.advance())
-        let factor = result.register(this.factor())
-        if (result.error) {
-          return result
-        }
-        return result.success(new UnaryOperationNode(token, factor))
-      } else if ([Tokens.INT, Tokens.FLOAT].includes(token.type)) {
-        result.register(this.advance())
-        return result.success(new NumberNode(token))
-      } else if (token.type === Tokens.LPAREN) {
-        result.register(this.advance())
-        let expr = result.register(this.expr())
-        if (result.error) {
-          return result
-        }
-        if (this.currentToken.type === Tokens.RPAREN) {
-          result.register(this.advance())
-          return result.success(expr)
-        } else {
-          return result.failure(
-            new InvalidSyntaxError(
-              this.currentToken.positionStart,
-              this.currentToken.positionEnd,
-              "Expected ')'",
-            ),
-          )
-        }
+    if ([Tokens.PLUS, Tokens.MINUS].includes(token.type)) {
+      result.register(this.advance())
+      let factor = result.register(this.factor())
+      if (result.error) {
+        return result
       }
-
-      return result.failure(
-        new InvalidSyntaxError(
-          token.positionStart,
-          token.positionEnd,
-          'Expected int or float',
-        ),
-      )
+      return result.success(new UnaryOperationNode(token, factor))
     }
+    return this.power()
   }
 
   term(): ParseResult {
