@@ -11,5 +11,6 @@
   },
   "scripts": {
     "start": "tsc && node dist/index.js"
-  }
+  },
+  "dependencies": {}
 }

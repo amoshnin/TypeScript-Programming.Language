@@ -1,5 +1,6 @@
 import { Position } from '../Base/position'
 import { Display } from '../Types'
+import { stringWithArrows } from './Functions'
 
 class ErrorBase implements Display {
   positionStart: Position
@@ -24,6 +25,11 @@ class ErrorBase implements Display {
     result += `File: ${this.positionStart.fileName}, `
     result += `line: ${this.positionStart.line + 1}, `
     result += `column: ${this.positionStart.column + 1}`
+    result += `\n\n${stringWithArrows(
+      this.positionStart.fileText,
+      this.positionStart,
+      this.positionEnd,
+    )}`
     return result
   }
 }

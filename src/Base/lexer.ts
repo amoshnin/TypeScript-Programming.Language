@@ -34,22 +34,22 @@ export class Lexer {
       } else if (DIGITS.includes(this.currentChar)) {
         tokens.push(this.makeNumber())
       } else if (this.currentChar === '+') {
-        tokens.push(new Token('PLUS'))
+        tokens.push(new Token('PLUS', undefined, this.position))
         this.advance()
       } else if (this.currentChar === '-') {
-        tokens.push(new Token('MINUS'))
+        tokens.push(new Token('MINUS', undefined, this.position))
         this.advance()
       } else if (this.currentChar === '*') {
-        tokens.push(new Token('MUL'))
+        tokens.push(new Token('MUL', undefined, this.position))
         this.advance()
       } else if (this.currentChar === '/') {
-        tokens.push(new Token('DIV'))
+        tokens.push(new Token('DIV', undefined, this.position))
         this.advance()
       } else if (this.currentChar === '(') {
-        tokens.push(new Token('LPAREN'))
+        tokens.push(new Token('LPAREN', undefined, this.position))
         this.advance()
       } else if (this.currentChar === ')') {
-        tokens.push(new Token('RPAREN'))
+        tokens.push(new Token('RPAREN', undefined, this.position))
         this.advance()
       } else {
         let positionStart = this.position.copy()
@@ -72,6 +72,7 @@ export class Lexer {
   makeNumber(): Token {
     var numberStr = ''
     var dotCount = 0
+    let positionStart = this.position.copy()
 
     while (
       this.currentChar !== null &&
@@ -88,9 +89,9 @@ export class Lexer {
     }
 
     if (dotCount === 0) {
-      return new Token('INT', Number(numberStr))
+      return new Token('INT', Number(numberStr), positionStart, this.position)
     } else {
-      return new Token('FLOAT', Number(numberStr))
+      return new Token('FLOAT', Number(numberStr), positionStart, this.position)
     }
   }
 }

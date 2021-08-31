@@ -20,7 +20,6 @@ class Interpreter {
         }
     }
     visitBinaryOperationNode(node) {
-        console.log('Found visitBinaryOperationNode');
         let left = this.visit(node.leftNode);
         let right = this.visit(node.rightNode);
         var result;
@@ -39,15 +38,13 @@ class Interpreter {
         return result.setPosition(node.positionStart, node.positionEnd);
     }
     visitUnaryOperationNode(node) {
-        console.log('Found visitUnaryOperationNode');
         var number = this.visit(node.node);
-        if (node.operation_token === tokens_1.Tokens.MINUS) {
+        if (node.operation_token.type === tokens_1.Tokens.MINUS) {
             number = number.multipliedBy(new values_1.NumberClass(-1));
         }
         return number.setPosition(node.positionStart, node.positionEnd);
     }
     visitNumberNode(node) {
-        console.log('Found visitNumberNode');
         return new values_1.NumberClass(Number(node.token.value)).setPosition(node.positionStart, node.positionEnd);
     }
 }

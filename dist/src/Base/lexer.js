@@ -32,27 +32,27 @@ class Lexer {
                 tokens.push(this.makeNumber());
             }
             else if (this.currentChar === '+') {
-                tokens.push(new tokens_1.Token('PLUS'));
+                tokens.push(new tokens_1.Token('PLUS', undefined, this.position));
                 this.advance();
             }
             else if (this.currentChar === '-') {
-                tokens.push(new tokens_1.Token('MINUS'));
+                tokens.push(new tokens_1.Token('MINUS', undefined, this.position));
                 this.advance();
             }
             else if (this.currentChar === '*') {
-                tokens.push(new tokens_1.Token('MUL'));
+                tokens.push(new tokens_1.Token('MUL', undefined, this.position));
                 this.advance();
             }
             else if (this.currentChar === '/') {
-                tokens.push(new tokens_1.Token('DIV'));
+                tokens.push(new tokens_1.Token('DIV', undefined, this.position));
                 this.advance();
             }
             else if (this.currentChar === '(') {
-                tokens.push(new tokens_1.Token('LPAREN'));
+                tokens.push(new tokens_1.Token('LPAREN', undefined, this.position));
                 this.advance();
             }
             else if (this.currentChar === ')') {
-                tokens.push(new tokens_1.Token('RPAREN'));
+                tokens.push(new tokens_1.Token('RPAREN', undefined, this.position));
                 this.advance();
             }
             else {
@@ -71,6 +71,7 @@ class Lexer {
     makeNumber() {
         var numberStr = '';
         var dotCount = 0;
+        let positionStart = this.position.copy();
         while (this.currentChar !== null &&
             `${constants_1.DIGITS}.`.includes(this.currentChar)) {
             if (this.currentChar === '.') {
@@ -85,10 +86,10 @@ class Lexer {
             this.advance();
         }
         if (dotCount === 0) {
-            return new tokens_1.Token('INT', Number(numberStr));
+            return new tokens_1.Token('INT', Number(numberStr), positionStart, this.position);
         }
         else {
-            return new tokens_1.Token('FLOAT', Number(numberStr));
+            return new tokens_1.Token('FLOAT', Number(numberStr), positionStart, this.position);
         }
     }
 }

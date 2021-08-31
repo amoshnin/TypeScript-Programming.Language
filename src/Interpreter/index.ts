@@ -43,7 +43,7 @@ class Interpreter {
 
   visitUnaryOperationNode(node: UnaryOperationNode): NumberClass {
     var number = this.visit(node.node) as NumberClass
-    if (node.operation_token === Tokens.MINUS) {
+    if (node.operation_token.type === Tokens.MINUS) {
       number = number.multipliedBy(new NumberClass(-1))
     }
     return number.setPosition(node.positionStart, node.positionEnd)
