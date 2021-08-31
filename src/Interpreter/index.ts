@@ -1,3 +1,4 @@
+import { Context } from '../Base/context'
 import { Tokens } from '../Base/tokens'
 import {
   BinaryOperationNode,
@@ -10,26 +11,29 @@ import { RuntimeResult } from './RuntimeResult'
 import { NumberClass } from './values'
 
 class Interpreter {
-  visit(node: NodeType): RuntimeResult {
+  visit(node: NodeType, context: Context): RuntimeResult {
     // Visit_BinaryOperationNode
     if (node instanceof BinaryOperationNode) {
-      return this.visitBinaryOperationNode(node) // => RuntimeResult(NumberClass)
+      return this.visitBinaryOperationNode(node, context) // => RuntimeResult(NumberClass)
     }
     // Visit_UnaryOperationNode
     if (node instanceof UnaryOperationNode) {
-      return this.visitUnaryOperationNode(node) // => RuntimeResult(NumberClass)
+      return this.visitUnaryOperationNode(node, context) // => RuntimeResult(NumberClass)
     }
     // Visit_NumberNode
     if (node instanceof NumberNode) {
-      return this.visitNumberNode(node) // => RuntimeResult(NumberClass)
+      return this.visitNumberNode(node, context) // => RuntimeResult(NumberClass)
     }
   }
 
-  visitBinaryOperationNode(node: BinaryOperationNode): RuntimeResult {
+  visitBinaryOperationNode(
+    node: BinaryOperationNode,
+    context: Context,
+  ): RuntimeResult {
     let runtimeResult = new RuntimeResult()
-    let left = runtimeResult.register(this.visit(node.leftNode))
+    let left = runtimeResult.register(this.visit(node.leftNode, context))
     if (runtimeResult.error) return runtimeResult
-    let right = runtimeResult.register(this.visit(node.rightNode))
+    let right = runtimeResult.register(this.visit(node.rightNode, context))
     if (runtimeResult.error) return runtimeResult
 
     var result: NumberClass = null
@@ -61,9 +65,12 @@ class Interpreter {
     }
   }
 
-  visitUnaryOperationNode(node: UnaryOperationNode): RuntimeResult {
+  visitUnaryOperationNode(
+    node: UnaryOperationNode,
+    context: Context,
+  ): RuntimeResult {
     let runtimeResult = new RuntimeResult()
-    var toChangeNumber = runtimeResult.register(this.visit(node.node))
+    var toChangeNumber = runtimeResult.register(this.visit(node.node, context))
     if (runtimeResult.error) return runtimeResult
 
     var resultError: RuntimeError = null
@@ -81,12 +88,11 @@ class Interpreter {
     }
   }
 
-  visitNumberNode(node: NumberNode): RuntimeResult {
+  visitNumberNode(node: NumberNode, context: Context): RuntimeResult {
     return new RuntimeResult().success(
-      new NumberClass(Number(node.token.value)).setPosition(
-        node.positionStart,
-        node.positionEnd,
-      ),
+      new NumberClass(Number(node.token.value))
+        .setContext(context)
+        .setPosition(node.positionStart, node.positionEnd),
     )
   }
 }

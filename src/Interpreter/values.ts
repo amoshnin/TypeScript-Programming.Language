@@ -1,3 +1,4 @@
+import { Context } from '../Base/context'
 import { Position } from '../Base/position'
 import { RuntimeError } from '../shared/errors'
 import { Display } from '../Types'
@@ -5,16 +6,23 @@ import { Display } from '../Types'
 type ReturnType = { number: NumberClass | null; error: RuntimeError | null }
 class NumberClass implements Display {
   value: number
+  context: Context
   positionStart: Position
   positionEnd: Position
 
   constructor(value: number) {
     this.value = value
+    this.setContext()
     this.setPosition()
   }
 
   descr(): string {
     return String(this.value)
+  }
+
+  setContext(context: Context = null): NumberClass {
+    this.context = context
+    return this
   }
 
   setPosition(positionStart = undefined, positionEnd = undefined) {
@@ -25,19 +33,34 @@ class NumberClass implements Display {
 
   addedTo(other: NumberClass): ReturnType {
     if (other instanceof NumberClass) {
-      return { number: new NumberClass(this.value + other.value), error: null }
+      return {
+        number: new NumberClass(this.value + other.value).setContext(
+          this.context,
+        ),
+        error: null,
+      }
     }
   }
 
   subtractedBy(other: NumberClass): ReturnType {
     if (other instanceof NumberClass) {
-      return { number: new NumberClass(this.value - other.value), error: null }
+      return {
+        number: new NumberClass(this.value - other.value).setContext(
+          this.context,
+        ),
+        error: null,
+      }
     }
   }
 
   multipliedBy(other: NumberClass): ReturnType {
     if (other instanceof NumberClass) {
-      return { number: new NumberClass(this.value * other.value), error: null }
+      return {
+        number: new NumberClass(this.value * other.value).setContext(
+          this.context,
+        ),
+        error: null,
+      }
     }
   }
 
@@ -50,11 +73,14 @@ class NumberClass implements Display {
             other.positionStart,
             other.positionEnd,
             'Division by zero',
+            this.context,
           ),
         }
       } else {
         return {
-          number: new NumberClass(this.value / other.value),
+          number: new NumberClass(this.value / other.value).setContext(
+            this.context,
+          ),
           error: null,
         }
       }

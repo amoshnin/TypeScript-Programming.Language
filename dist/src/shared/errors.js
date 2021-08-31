@@ -35,8 +35,25 @@ class InvalidSyntaxError extends ErrorBase {
 }
 exports.InvalidSyntaxError = InvalidSyntaxError;
 class RuntimeError extends ErrorBase {
-    constructor(positionStart, positionEnd, details) {
+    constructor(positionStart, positionEnd, details, context) {
         super(positionStart, positionEnd, 'Runtime Error', details);
+        this.context = context;
+    }
+    generateTraceback() {
+        var result = '';
+        let position = this.positionStart;
+        let ctx = this.context;
+        while (ctx) {
+            result = `  File: ${position.fileName}, line: ${String(position.line + 1)}, column: ${String(position.column + 1)}, in ${ctx.displayName}\n`;
+            position = ctx.parentEntryPosition;
+            ctx = ctx.parent;
+        }
+        return `Traceback (most recent call last):\n${result}`;
+    }
+    descr() {
+        var result = this.generateTraceback();
+        result += `${this.error_name}: ${this.details}\n`;
+        return result;
     }
 }
 exports.RuntimeError = RuntimeError;

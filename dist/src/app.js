@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = void 0;
+const context_1 = require("./Base/context");
 const lexer_1 = require("./Base/lexer");
 const Interpreter_1 = require("./Interpreter");
 const Parser_1 = require("./Parser");
@@ -17,7 +18,8 @@ const run = (fileName, text) => {
         return { result: null, error: astResult.error };
     // Run progtram
     let interpreter = new Interpreter_1.Interpreter();
-    let interpreterResult = interpreter.visit(astResult.node);
+    let context = new context_1.Context('<program>');
+    let interpreterResult = interpreter.visit(astResult.node, context);
     return { result: interpreterResult.value, error: interpreterResult.error };
 };
 exports.run = run;

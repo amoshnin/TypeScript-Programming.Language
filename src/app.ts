@@ -1,3 +1,4 @@
+import { Context } from './Base/context'
 import { Lexer } from './Base/lexer'
 import { Interpreter } from './Interpreter'
 import { NumberClass } from './Interpreter/values'
@@ -20,7 +21,8 @@ export const run = (
 
   // Run progtram
   let interpreter = new Interpreter()
-  let interpreterResult = interpreter.visit(astResult.node)
+  let context = new Context('<program>')
+  let interpreterResult = interpreter.visit(astResult.node, context)
 
   return { result: interpreterResult.value, error: interpreterResult.error }
 }

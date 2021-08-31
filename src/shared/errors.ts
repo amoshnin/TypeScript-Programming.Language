@@ -1,3 +1,4 @@
+import { Context } from '../Base/context'
 import { Position } from '../Base/position'
 import { Display } from '../Types'
 import { stringWithArrows } from './Functions'
@@ -46,9 +47,43 @@ class InvalidSyntaxError extends ErrorBase {
   }
 }
 
-class RuntimeError extends ErrorBase {
-  constructor(positionStart: Position, positionEnd: Position, details: string) {
+class RuntimeError extends ErrorBase implements Display {
+  context: Context
+
+  constructor(
+    positionStart: Position,
+    positionEnd: Position,
+    details: string,
+    context: Context,
+  ) {
     super(positionStart, positionEnd, 'Runtime Error', details)
+    this.context = context
+  }
+
+  generateTraceback(): string {
+    var result = ''
+    let position = this.positionStart
+    let ctx = this.context
+
+    while (ctx) {
+      result = `  File: ${position.fileName}, line: ${String(
+        position.line + 1,
+      )}, column: ${String(position.column + 1)}, in ${ctx.displayName}\n`
+      position = ctx.parentEntryPosition
+      ctx = ctx.parent
+    }
+    return `Traceback (most recent call last):\n${result}`
+  }
+
+  override descr(): string {
+    var result = this.generateTraceback()
+    result += `${this.error_name}: ${this.details}\n`
+    // result += `\n\n${stringWithArrows(
+    //   this.positionStart.fileText,
+    //   this.positionStart,
+    //   this.positionEnd,
+    // )}`
+    return result
   }
 }
 

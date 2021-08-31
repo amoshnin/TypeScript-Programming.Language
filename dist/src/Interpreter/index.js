@@ -6,26 +6,26 @@ const nodes_1 = require("../Parser/nodes");
 const RuntimeResult_1 = require("./RuntimeResult");
 const values_1 = require("./values");
 class Interpreter {
-    visit(node) {
+    visit(node, context) {
         // Visit_BinaryOperationNode
         if (node instanceof nodes_1.BinaryOperationNode) {
-            return this.visitBinaryOperationNode(node); // => RuntimeResult(NumberClass)
+            return this.visitBinaryOperationNode(node, context); // => RuntimeResult(NumberClass)
         }
         // Visit_UnaryOperationNode
         if (node instanceof nodes_1.UnaryOperationNode) {
-            return this.visitUnaryOperationNode(node); // => RuntimeResult(NumberClass)
+            return this.visitUnaryOperationNode(node, context); // => RuntimeResult(NumberClass)
         }
         // Visit_NumberNode
         if (node instanceof nodes_1.NumberNode) {
-            return this.visitNumberNode(node); // => RuntimeResult(NumberClass)
+            return this.visitNumberNode(node, context); // => RuntimeResult(NumberClass)
         }
     }
-    visitBinaryOperationNode(node) {
+    visitBinaryOperationNode(node, context) {
         let runtimeResult = new RuntimeResult_1.RuntimeResult();
-        let left = runtimeResult.register(this.visit(node.leftNode));
+        let left = runtimeResult.register(this.visit(node.leftNode, context));
         if (runtimeResult.error)
             return runtimeResult;
-        let right = runtimeResult.register(this.visit(node.rightNode));
+        let right = runtimeResult.register(this.visit(node.rightNode, context));
         if (runtimeResult.error)
             return runtimeResult;
         var result = null;
@@ -57,9 +57,9 @@ class Interpreter {
             return runtimeResult.success(result.setPosition(node.positionStart, node.positionEnd));
         }
     }
-    visitUnaryOperationNode(node) {
+    visitUnaryOperationNode(node, context) {
         let runtimeResult = new RuntimeResult_1.RuntimeResult();
-        var toChangeNumber = runtimeResult.register(this.visit(node.node));
+        var toChangeNumber = runtimeResult.register(this.visit(node.node, context));
         if (runtimeResult.error)
             return runtimeResult;
         var resultError = null;
@@ -75,8 +75,10 @@ class Interpreter {
             return runtimeResult.success(toChangeNumber.setPosition(node.positionStart, node.positionEnd));
         }
     }
-    visitNumberNode(node) {
-        return new RuntimeResult_1.RuntimeResult().success(new values_1.NumberClass(Number(node.token.value)).setPosition(node.positionStart, node.positionEnd));
+    visitNumberNode(node, context) {
+        return new RuntimeResult_1.RuntimeResult().success(new values_1.NumberClass(Number(node.token.value))
+            .setContext(context)
+            .setPosition(node.positionStart, node.positionEnd));
     }
 }
 exports.Interpreter = Interpreter;
