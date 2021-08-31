@@ -87,4 +87,16 @@ class RuntimeError extends ErrorBase implements Display {
   }
 }
 
-export { ErrorBase, IllegalCharError, InvalidSyntaxError, RuntimeError }
+class ExpectedCharError extends ErrorBase {
+  constructor(positionStart: Position, positionEnd: Position, details: string) {
+    super(positionStart, positionEnd, 'Expected Character', details)
+  }
+}
+
+export {
+  ErrorBase,
+  IllegalCharError,
+  InvalidSyntaxError,
+  RuntimeError,
+  ExpectedCharError,
+}

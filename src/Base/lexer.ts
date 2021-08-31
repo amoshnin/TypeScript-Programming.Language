@@ -8,7 +8,11 @@ import {
   KEYWORDS,
   KeywordType,
 } from '../shared/constants'
-import { ErrorBase, IllegalCharError } from '../shared/errors'
+import {
+  ErrorBase,
+  ExpectedCharError,
+  IllegalCharError,
+} from '../shared/errors'
 
 export class Lexer {
   fileName: string
@@ -56,15 +60,22 @@ export class Lexer {
       } else if (this.currentChar === '^') {
         tokens.push(new Token('POW', undefined, this.position))
         this.advance()
-      } else if (this.currentChar === '=') {
-        tokens.push(new Token('EQ', undefined, this.position))
-        this.advance()
       } else if (this.currentChar === '(') {
         tokens.push(new Token('LPAREN', undefined, this.position))
         this.advance()
       } else if (this.currentChar === ')') {
         tokens.push(new Token('RPAREN', undefined, this.position))
         this.advance()
+      } else if (this.currentChar === '!') {
+        const { token, error } = this.makeNotEquals()
+        if (error) return { tokens: [], error }
+        tokens.push(token)
+      } else if (this.currentChar === '=') {
+        tokens.push(this.makeEquals())
+      } else if (this.currentChar === '<') {
+        tokens.push(this.makeLessThan())
+      } else if (this.currentChar === '>') {
+        tokens.push(this.makeGreaterThan())
       } else {
         let positionStart = this.position.copy()
         let char = this.currentChar
@@ -81,6 +92,63 @@ export class Lexer {
     }
     tokens.push(new Token('EOF', undefined, this.position))
     return { tokens, error: null }
+  }
+
+  makeNotEquals(): { token?: Token; error?: ExpectedCharError } {
+    let positionStart = this.position.copy()
+    this.advance()
+    if (this.currentChar === '=') {
+      this.advance()
+      return { token: new Token('NE', undefined, positionStart, this.position) }
+    }
+    this.advance()
+    return {
+      error: new ExpectedCharError(
+        positionStart,
+        this.position,
+        "'=' (after '!')",
+      ),
+    }
+  }
+
+  makeEquals(): Token {
+    var tokenType: TokenType = 'EQ'
+    let positionStart = this.position.copy()
+    this.advance()
+
+    // Checking if it is double equals
+    if (this.currentChar === '=') {
+      this.advance()
+      tokenType = 'EE'
+    }
+
+    return new Token(tokenType, undefined, positionStart, this.position)
+  }
+
+  makeLessThan(): Token {
+    var tokenType: TokenType = 'LT'
+    let positionStart = this.position.copy()
+    this.advance()
+
+    if (this.currentChar === '=') {
+      this.advance()
+      tokenType = 'LTE'
+    }
+
+    return new Token(tokenType, undefined, positionStart, this.position)
+  }
+
+  makeGreaterThan(): Token {
+    var tokenType: TokenType = 'GT'
+    let positionStart = this.position.copy()
+    this.advance()
+
+    if (this.currentChar === '=') {
+      this.advance()
+      tokenType = 'GTE'
+    }
+
+    return new Token(tokenType, undefined, positionStart, this.position)
   }
 
   makeIdentifier(): Token {
