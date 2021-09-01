@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WhileNode = exports.ForNode = exports.IfNode = exports.VarAssignNode = exports.VarAccessNode = exports.UnaryOperationNode = exports.BinaryOperationNode = exports.NumberNode = void 0;
+exports.CallNode = exports.FunctionDefinitionNode = exports.WhileNode = exports.ForNode = exports.IfNode = exports.VarAssignNode = exports.VarAccessNode = exports.UnaryOperationNode = exports.BinaryOperationNode = exports.NumberNode = void 0;
 class NumberNode {
     constructor(token) {
         this.token = token;
@@ -101,4 +101,43 @@ class WhileNode {
     }
 }
 exports.WhileNode = WhileNode;
+class FunctionDefinitionNode {
+    // varNameToken = name of the function
+    constructor(bodyNode, argNameTokens = [], varNameToken) {
+        this.varNameToken = varNameToken;
+        this.argNameTokens = argNameTokens;
+        this.bodyNode = bodyNode;
+        if (this.varNameToken) {
+            this.positionStart = this.varNameToken.positionStart;
+        }
+        else if (this.argNameTokens.length > 0) {
+            this.positionStart = this.argNameTokens[0].positionStart;
+        }
+        else {
+            this.positionStart = this.bodyNode.positionStart;
+        }
+        this.positionEnd = this.bodyNode.positionEnd;
+    }
+    descr() {
+        return 'FunctionDefinitionNode default descr';
+    }
+}
+exports.FunctionDefinitionNode = FunctionDefinitionNode;
+class CallNode {
+    constructor(nodeToCall, argNodes) {
+        this.nodeToCall = nodeToCall;
+        this.argNodes = argNodes;
+        this.positionStart = this.nodeToCall.positionStart;
+        if (this.argNodes.length > 0) {
+            this.positionEnd = this.argNodes[this.argNodes.length - 1].positionEnd;
+        }
+        else {
+            this.positionEnd = this.nodeToCall.positionEnd;
+        }
+    }
+    descr() {
+        return 'CallNode default descr';
+    }
+}
+exports.CallNode = CallNode;
 //# sourceMappingURL=nodes.js.map

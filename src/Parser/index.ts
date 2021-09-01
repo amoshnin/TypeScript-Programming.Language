@@ -210,7 +210,7 @@ class Parser {
       new InvalidSyntaxError(
         this.currentToken.positionStart,
         this.currentToken.positionEnd,
-        "Expected int, float, identifier, '+', '-' or '('",
+        "Expected int, float, identifier, '+', '-', '(', 'IF', 'FOR', 'WHILE', 'FUN'",
       ),
     )
   }
@@ -321,7 +321,7 @@ class Parser {
         new InvalidSyntaxError(
           this.currentToken.positionStart,
           this.currentToken.positionEnd,
-          "Expected int, float, identifier, '+', '-' or '(', 'NOT'",
+          "Expected 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(' or 'NOT'",
         ),
       )
     }
@@ -553,7 +553,7 @@ class Parser {
     result.registerAdvancement()
     this.advance()
 
-    var varNameToken: Token = null
+    var varNameToken: Token
     if (this.currentToken.type === 'IDENTIFIER') {
       varNameToken = this.currentToken
       result.registerAdvancement()

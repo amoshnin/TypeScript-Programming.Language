@@ -2,7 +2,7 @@ import { SymbolTable } from './symbolTable'
 
 class Context {
   displayName: string
-  parent
+  parent: Context
   parentEntryPosition
   symbolTable: SymbolTable = null
 

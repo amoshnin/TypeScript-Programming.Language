@@ -39,6 +39,14 @@ class Interpreter {
         if (node instanceof nodes_1.WhileNode) {
             return this.visitWhileNode(node, context); // => RuntimeResult()
         }
+        // Visit_FunctionDefinitionNode
+        if (node instanceof nodes_1.FunctionDefinitionNode) {
+            return this.visitFunctionDefinitionNode(node, context); // => RuntimeResult()
+        }
+        // Visit_CallNode
+        if (node instanceof nodes_1.CallNode) {
+            return this.visitCallNode(node, context); // => RuntimeResult()
+        }
     }
     visitVarAccessNode(node, context) {
         let result = new RuntimeResult_1.RuntimeResult();
@@ -67,78 +75,78 @@ class Interpreter {
         let right = runtimeResult.register(this.visit(node.rightNode, context));
         if (runtimeResult.error)
             return runtimeResult;
-        var result = null;
+        var finalResult = null;
         var resultError = null;
         if (node.operationToken.type === 'PLUS') {
-            const { number, error } = left.addedTo(right);
-            result = number;
+            const { result, error } = left.addedTo(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'MINUS') {
-            const { number, error } = left.subtractedBy(right);
-            result = number;
+            const { result, error } = left.subtractedBy(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'MUL') {
-            const { number, error } = left.multipliedBy(right);
-            result = number;
+            const { result, error } = left.multipliedBy(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'DIV') {
-            const { number, error } = left.dividedBy(right);
-            result = number;
+            const { result, error } = left.dividedBy(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'POW') {
-            const { number, error } = left.poweredBy(right);
-            result = number;
+            const { result, error } = left.poweredBy(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'EE') {
-            const { number, error } = left.getComparisonEq(right);
-            result = number;
+            const { result, error } = left.getComparisonEq(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'NE') {
-            const { number, error } = left.getComparisonNe(right);
-            result = number;
+            const { result, error } = left.getComparisonNe(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'LT') {
-            const { number, error } = left.getComparisonLt(right);
-            result = number;
+            const { result, error } = left.getComparisonLt(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'GT') {
-            const { number, error } = left.getComparisonGt(right);
-            result = number;
+            const { result, error } = left.getComparisonGt(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'LTE') {
-            const { number, error } = left.getComparisonLte(right);
-            result = number;
+            const { result, error } = left.getComparisonLte(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.type === 'GTE') {
-            const { number, error } = left.getComparisonGte(right);
-            result = number;
+            const { result, error } = left.getComparisonGte(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.matches('KEYWORD', 'AND')) {
-            const { number, error } = left.andedBy(right);
-            result = number;
+            const { result, error } = left.andedBy(right);
+            finalResult = result;
             resultError = error;
         }
         else if (node.operationToken.matches('KEYWORD', 'OR')) {
-            const { number, error } = left.oredBy(right);
-            result = number;
+            const { result, error } = left.oredBy(right);
+            finalResult = result;
             resultError = error;
         }
         if (resultError) {
             return runtimeResult.failure(resultError);
         }
         else {
-            return runtimeResult.success(result.setPosition(node.positionStart, node.positionEnd));
+            return runtimeResult.success(finalResult.setPosition(node.positionStart, node.positionEnd));
         }
     }
     visitUnaryOperationNode(node, context) {
@@ -148,13 +156,13 @@ class Interpreter {
             return runtimeResult;
         var resultError = null;
         if (node.operation_token.type === 'MINUS') {
-            const { number, error } = toChangeNumber.multipliedBy(new values_1.NumberClass(-1));
-            toChangeNumber = number;
+            const { result, error } = toChangeNumber.multipliedBy(new values_1.NumberClass(-1));
+            toChangeNumber = result;
             resultError = error;
         }
         else if (node.operation_token.matches('KEYWORD', 'NOT')) {
-            const { number, error } = toChangeNumber.notted();
-            toChangeNumber = number;
+            const { result, error } = toChangeNumber.notted();
+            toChangeNumber = result;
             resultError = error;
         }
         if (resultError) {
@@ -238,6 +246,40 @@ class Interpreter {
                 return result;
         }
         return result.success(null);
+    }
+    visitFunctionDefinitionNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        let funcName = node.varNameToken
+            ? node.varNameToken.value
+            : null;
+        let bodyNode = node.bodyNode;
+        let argNames = node.argNameTokens.map((item) => item.value);
+        let funcValue = new values_1.FunctionClass(funcName, bodyNode, argNames)
+            .setContext(context)
+            .setPosition(node.positionStart, node.positionEnd);
+        if (node.varNameToken) {
+            context.symbolTable.set(funcName, funcValue);
+        }
+        return result.success(funcValue);
+    }
+    visitCallNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        var args = [];
+        let valueToCall = result.register(this.visit(node.nodeToCall, context));
+        if (result.error)
+            return result;
+        valueToCall = valueToCall
+            .copy()
+            .setPosition(node.positionStart, node.positionEnd);
+        node.argNodes.forEach((argNode) => {
+            args.push(result.register(this.visit(argNode, context)));
+            if (result.error)
+                return result;
+        });
+        let returnValue = result.register(valueToCall.execute(args));
+        if (result.error)
+            return result;
+        return result.success(returnValue);
     }
 }
 exports.Interpreter = Interpreter;

@@ -1,7 +1,7 @@
 import { Context } from './Context'
 import { Lexer } from './Base/lexer'
 import { Interpreter } from './Interpreter'
-import { NumberClass } from './Interpreter/values'
+import { NumberClass, ValueClass } from './Interpreter/values'
 import { Parser } from './Parser'
 import { ErrorBase } from './shared/errors'
 import { SymbolTable } from './Context/symbolTable'
@@ -14,7 +14,7 @@ globalSymbolTable.set('TRUE', new NumberClass(1))
 export const run = (
   fileName: string,
   text: string,
-): { result: NumberClass | null; error: ErrorBase | null } => {
+): { result: ValueClass | null; error: ErrorBase | null } => {
   // Generate tokens
   const lexer = new Lexer(fileName, text)
   const lexerResult = lexer.makeTokens()

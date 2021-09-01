@@ -39,8 +39,7 @@ class Lexer {
                 this.advance();
             }
             else if (this.currentChar === '-') {
-                tokens.push(new tokens_1.Token('MINUS', undefined, this.position));
-                this.advance();
+                tokens.push(this.makeMinusOrArrow());
             }
             else if (this.currentChar === '*') {
                 tokens.push(new tokens_1.Token('MUL', undefined, this.position));
@@ -77,6 +76,10 @@ class Lexer {
             else if (this.currentChar === '>') {
                 tokens.push(this.makeGreaterThan());
             }
+            else if (this.currentChar === ',') {
+                tokens.push(new tokens_1.Token('COMMA', undefined, this.position));
+                this.advance();
+            }
             else {
                 let positionStart = this.position.copy();
                 let char = this.currentChar;
@@ -89,6 +92,16 @@ class Lexer {
         }
         tokens.push(new tokens_1.Token('EOF', undefined, this.position));
         return { tokens, error: null };
+    }
+    makeMinusOrArrow() {
+        var tokenType = 'MINUS';
+        let positionStart = this.position.copy();
+        this.advance();
+        if (this.currentChar === '>') {
+            this.advance();
+            tokenType = 'ARROW';
+        }
+        return new tokens_1.Token(tokenType, undefined, positionStart, this.position);
     }
     makeNotEquals() {
         let positionStart = this.position.copy();

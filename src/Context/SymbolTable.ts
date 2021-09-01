@@ -1,10 +1,14 @@
-import { NumberClass } from '../Interpreter/values'
+import { ValueClass } from '../Interpreter/values'
 
 class SymbolTable {
   symbols = {}
-  parent: SymbolTable = null
+  parent: SymbolTable
 
-  get(name: string): NumberClass {
+  constructor(parent: SymbolTable = null) {
+    this.parent = parent
+  }
+
+  get(name: string): ValueClass {
     let value = this.symbols[name]
     if (!value && this.parent) {
       return this.parent.get(name)
@@ -12,7 +16,7 @@ class SymbolTable {
     return value
   }
 
-  set(name: string, value: NumberClass) {
+  set(name: string, value: ValueClass) {
     this.symbols[name] = value
   }
   remove(name: string) {

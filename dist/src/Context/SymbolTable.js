@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SymbolTable = void 0;
 class SymbolTable {
-    constructor() {
+    constructor(parent = null) {
         this.symbols = {};
-        this.parent = null;
+        this.parent = parent;
     }
     get(name) {
         let value = this.symbols[name];

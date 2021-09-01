@@ -1,7 +1,10 @@
+import { StringOrNumberType } from '../base/tokens'
 import { Context } from '../Context'
 import {
   BinaryOperationNode,
+  CallNode,
   ForNode,
+  FunctionDefinitionNode,
   IfNode,
   NodeType,
   NumberNode,
@@ -12,7 +15,7 @@ import {
 } from '../Parser/nodes'
 import { RuntimeError } from '../shared/errors'
 import { RuntimeResult } from './RuntimeResult'
-import { NumberClass } from './values'
+import { FunctionClass, NumberClass, ValueClass } from './values'
 
 class Interpreter {
   visit(node: NodeType, context: Context): RuntimeResult {
@@ -48,12 +51,20 @@ class Interpreter {
     if (node instanceof WhileNode) {
       return this.visitWhileNode(node, context) // => RuntimeResult()
     }
+    // Visit_FunctionDefinitionNode
+    if (node instanceof FunctionDefinitionNode) {
+      return this.visitFunctionDefinitionNode(node, context) // => RuntimeResult()
+    }
+    // Visit_CallNode
+    if (node instanceof CallNode) {
+      return this.visitCallNode(node, context) // => RuntimeResult()
+    }
   }
 
   visitVarAccessNode(node: VarAccessNode, context: Context): RuntimeResult {
     let result = new RuntimeResult()
     let varName = node.varNameToken.value
-    var value = context.symbolTable.get(varName as string)
+    var value = context.symbolTable.get(varName as string) as NumberClass
 
     if (!value) {
       return result.failure(
@@ -66,7 +77,7 @@ class Interpreter {
       )
     }
     value = value.copy().setPosition(node.positionStart, node.positionEnd)
-    return result.success(value)
+    return result.success(value as NumberClass)
   }
 
   visitVarAssignNode(node: VarAssignNode, context: Context): RuntimeResult {
@@ -89,59 +100,59 @@ class Interpreter {
     let right = runtimeResult.register(this.visit(node.rightNode, context))
     if (runtimeResult.error) return runtimeResult
 
-    var result: NumberClass = null
+    var finalResult: ValueClass = null
     var resultError: RuntimeError = null
     if (node.operationToken.type === 'PLUS') {
-      const { number, error } = left.addedTo(right)
-      result = number
+      const { result, error } = left.addedTo(right)
+      finalResult = result as NumberClass
       resultError = error
     } else if (node.operationToken.type === 'MINUS') {
-      const { number, error } = left.subtractedBy(right)
-      result = number
+      const { result, error } = left.subtractedBy(right)
+      finalResult = result as NumberClass
       resultError = error
     } else if (node.operationToken.type === 'MUL') {
-      const { number, error } = left.multipliedBy(right)
-      result = number
+      const { result, error } = left.multipliedBy(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'DIV') {
-      const { number, error } = left.dividedBy(right)
-      result = number
+      const { result, error } = left.dividedBy(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'POW') {
-      const { number, error } = left.poweredBy(right)
-      result = number
+      const { result, error } = left.poweredBy(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'EE') {
-      const { number, error } = left.getComparisonEq(right)
-      result = number
+      const { result, error } = left.getComparisonEq(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'NE') {
-      const { number, error } = left.getComparisonNe(right)
-      result = number
+      const { result, error } = left.getComparisonNe(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'LT') {
-      const { number, error } = left.getComparisonLt(right)
-      result = number
+      const { result, error } = left.getComparisonLt(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'GT') {
-      const { number, error } = left.getComparisonGt(right)
-      result = number
+      const { result, error } = left.getComparisonGt(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'LTE') {
-      const { number, error } = left.getComparisonLte(right)
-      result = number
+      const { result, error } = left.getComparisonLte(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.type === 'GTE') {
-      const { number, error } = left.getComparisonGte(right)
-      result = number
+      const { result, error } = left.getComparisonGte(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.matches('KEYWORD', 'AND')) {
-      const { number, error } = left.andedBy(right)
-      result = number
+      const { result, error } = left.andedBy(right)
+      finalResult = result
       resultError = error
     } else if (node.operationToken.matches('KEYWORD', 'OR')) {
-      const { number, error } = left.oredBy(right)
-      result = number
+      const { result, error } = left.oredBy(right)
+      finalResult = result
       resultError = error
     }
 
@@ -149,7 +160,7 @@ class Interpreter {
       return runtimeResult.failure(resultError)
     } else {
       return runtimeResult.success(
-        result.setPosition(node.positionStart, node.positionEnd),
+        finalResult.setPosition(node.positionStart, node.positionEnd),
       )
     }
   }
@@ -164,12 +175,12 @@ class Interpreter {
 
     var resultError: RuntimeError = null
     if (node.operation_token.type === 'MINUS') {
-      const { number, error } = toChangeNumber.multipliedBy(new NumberClass(-1))
-      toChangeNumber = number
+      const { result, error } = toChangeNumber.multipliedBy(new NumberClass(-1))
+      toChangeNumber = result
       resultError = error
     } else if (node.operation_token.matches('KEYWORD', 'NOT')) {
-      const { number, error } = toChangeNumber.notted()
-      toChangeNumber = number
+      const { result, error } = toChangeNumber.notted()
+      toChangeNumber = result
       resultError = error
     }
 
@@ -214,15 +225,21 @@ class Interpreter {
 
   visitForNode(node: ForNode, context: Context): RuntimeResult {
     let result = new RuntimeResult()
-    let startValue = result.register(this.visit(node.startValueNode, context))
+    let startValue = result.register(
+      this.visit(node.startValueNode, context),
+    ) as NumberClass
     if (result.error) return result
 
-    let endValue = result.register(this.visit(node.endValueNode, context))
+    let endValue = result.register(
+      this.visit(node.endValueNode, context),
+    ) as NumberClass
     if (result.error) return result
 
     var stepValue: NumberClass
     if (node.stepValueNode) {
-      stepValue = result.register(this.visit(node.stepValueNode, context))
+      stepValue = result.register(
+        this.visit(node.stepValueNode, context),
+      ) as NumberClass
       if (result.error) return result
     } else {
       stepValue = new NumberClass(1)
@@ -265,6 +282,48 @@ class Interpreter {
     }
 
     return result.success(null)
+  }
+
+  visitFunctionDefinitionNode(
+    node: FunctionDefinitionNode,
+    context: Context,
+  ): RuntimeResult {
+    let result = new RuntimeResult()
+
+    let funcName = node.varNameToken
+      ? (node.varNameToken.value as string)
+      : null
+    let bodyNode: NodeType = node.bodyNode
+    let argNames = node.argNameTokens.map((item) => item.value as string)
+
+    let funcValue = new FunctionClass(funcName, bodyNode, argNames)
+      .setContext(context)
+      .setPosition(node.positionStart, node.positionEnd)
+
+    if (node.varNameToken) {
+      context.symbolTable.set(funcName, funcValue)
+    }
+
+    return result.success(funcValue)
+  }
+
+  visitCallNode(node: CallNode, context: Context): RuntimeResult {
+    let result = new RuntimeResult()
+    var args = []
+    let valueToCall = result.register(this.visit(node.nodeToCall, context))
+    if (result.error) return result
+    valueToCall = valueToCall
+      .copy()
+      .setPosition(node.positionStart, node.positionEnd)
+
+    node.argNodes.forEach((argNode) => {
+      args.push(result.register(this.visit(argNode, context)))
+      if (result.error) return result
+    })
+
+    let returnValue = result.register(valueToCall.execute(args))
+    if (result.error) return result
+    return result.success(returnValue)
   }
 }
 

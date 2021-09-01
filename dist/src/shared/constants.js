@@ -20,6 +20,7 @@ const KEYWORDS = [
     'TO',
     'STEP',
     'WHILE',
+    'FUN',
 ];
 exports.KEYWORDS = KEYWORDS;
 function ascii_letters() {
