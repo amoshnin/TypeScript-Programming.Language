@@ -17,6 +17,7 @@ type KeywordType =
   | 'TO'
   | 'STEP'
   | 'WHILE'
+  | 'FUN'
 
 const KEYWORDS: Array<KeywordType> = [
   'VAR',
@@ -31,6 +32,7 @@ const KEYWORDS: Array<KeywordType> = [
   'TO',
   'STEP',
   'WHILE',
+  'FUN',
 ]
 
 function ascii_letters() {

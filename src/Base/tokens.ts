@@ -21,6 +21,8 @@ type TokenType =
   | 'GT'
   | 'LTE'
   | 'GTE'
+  | 'COMMA'
+  | 'ARROW'
   | 'EOF'
 
 export type StringOrNumberType = string | number
