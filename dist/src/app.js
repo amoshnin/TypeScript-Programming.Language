@@ -8,7 +8,7 @@ const values_1 = require("./Interpreter/values");
 const Parser_1 = require("./Parser");
 const symbolTable_1 = require("./Context/symbolTable");
 const globalSymbolTable = new symbolTable_1.SymbolTable();
-globalSymbolTable.set('null', new values_1.NumberClass(0));
+globalSymbolTable.set('NULL', new values_1.NumberClass(0));
 globalSymbolTable.set('FALSE', new values_1.NumberClass(0));
 globalSymbolTable.set('TRUE', new values_1.NumberClass(1));
 const run = (fileName, text) => {

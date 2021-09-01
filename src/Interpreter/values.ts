@@ -193,6 +193,10 @@ class NumberClass implements Display {
       error: null,
     }
   }
+
+  isTrue(): boolean {
+    return this.value !== 0
+  }
 }
 
 export { NumberClass }

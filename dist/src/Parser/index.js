@@ -21,7 +21,7 @@ class Parser {
     parse() {
         let result = this.expr();
         if (!result.error && this.currentToken.type !== 'EOF') {
-            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '+', '-', '*' or '/'"));
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '+', '-', '*', '/', '^', '==', '!=', '<', '>', <=', '>=', 'AND' or 'OR'"));
         }
         return result;
     }
@@ -84,10 +84,14 @@ class Parser {
                 this.advance();
                 return result.success(expr);
             }
-            else {
-                return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')'"));
-            }
         }
+        else if (token.matches('KEYWORD', 'IF')) {
+            let ifExpression = result.register(this.ifExpression());
+            if (result.error)
+                return result;
+            return result.success(ifExpression);
+        }
+        return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')'"));
         return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected int, float, identifier, '+', '-' or '('"));
     }
     power() {
@@ -166,6 +170,52 @@ class Parser {
     }
     arithmeticExpression() {
         return this.binaryOperation('TERM', [{ type: 'PLUS' }, { type: 'MINUS' }]);
+    }
+    ifExpression() {
+        let result = new ParseResult_1.ParseResult();
+        var cases = [];
+        var elseCase;
+        if (!this.currentToken.matches('KEYWORD', 'IF')) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'IF'"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        let condition = result.register(this.expr()); // Taking the condition to be compared
+        if (result.error)
+            return result;
+        if (!this.currentToken.matches('KEYWORD', 'THEN')) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'THEN'"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        let expr = result.register(this.expr()); // Taking the expression to be executed if condition succeeds
+        if (result.error)
+            return result;
+        cases.push({ condition, expr });
+        while (this.currentToken.matches('KEYWORD', 'ELIF')) {
+            result.registerAdvancement();
+            this.advance();
+            let condition = result.register(this.expr());
+            if (result.error)
+                return result;
+            if (!this.currentToken.matches('KEYWORD', 'THEN')) {
+                return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'THEN'"));
+            }
+            result.registerAdvancement();
+            this.advance();
+            let expr = result.register(this.expr());
+            if (result.error)
+                return result;
+            cases.push({ condition, expr });
+        }
+        if (this.currentToken.matches('KEYWORD', 'ELSE')) {
+            result.registerAdvancement();
+            this.advance();
+            elseCase = result.register(this.expr());
+            if (result.error)
+                return result;
+        }
+        return result.success(new nodes_1.IfNode(cases, elseCase));
     }
 }
 exports.Parser = Parser;

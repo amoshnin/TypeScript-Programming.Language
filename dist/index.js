@@ -7,22 +7,19 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 rl.question('basic > ', (text) => {
+    fn(text);
+    rl.question('basic > ', (text) => {
+        fn(text);
+        rl.close();
+    });
+});
+const fn = (text) => {
     let { result, error } = (0, app_1.run)('<stdin>', text);
     if (error) {
         console.log('Error: ' + error.descr());
     }
-    else {
+    else if (result) {
         console.log(result.descr());
     }
-    rl.question('basic > ', (text) => {
-        let { result, error } = (0, app_1.run)('<stdin>', text);
-        if (error) {
-            console.log('Error: ' + error.descr());
-        }
-        else {
-            console.log(result.descr());
-        }
-        rl.close();
-    });
-});
+};
 //# sourceMappingURL=index.js.map

@@ -27,6 +27,10 @@ class Interpreter {
         if (node instanceof nodes_1.VarAssignNode) {
             return this.visitVarAssignNode(node, context); // => RuntimeResult()
         }
+        // Visit_VarAssignNode
+        if (node instanceof nodes_1.IfNode) {
+            return this.visitIfNode(node, context); // => RuntimeResult()
+        }
     }
     visitVarAccessNode(node, context) {
         let result = new RuntimeResult_1.RuntimeResult();
@@ -156,6 +160,27 @@ class Interpreter {
         return new RuntimeResult_1.RuntimeResult().success(new values_1.NumberClass(Number(node.token.value))
             .setContext(context)
             .setPosition(node.positionStart, node.positionEnd));
+    }
+    visitIfNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        for (let { condition, expr } of node.cases) {
+            let conditionValue = result.register(this.visit(condition, context));
+            if (result.error)
+                return result;
+            if (conditionValue.isTrue()) {
+                let expressionValue = result.register(this.visit(expr, context));
+                if (result.error)
+                    return result;
+                return result.success(expressionValue);
+            }
+        }
+        if (node.elseCase) {
+            let elseValue = result.register(this.visit(node.elseCase, context));
+            if (result.error)
+                return result;
+            return result.success(elseValue);
+        }
+        return result.success(null);
     }
 }
 exports.Interpreter = Interpreter;

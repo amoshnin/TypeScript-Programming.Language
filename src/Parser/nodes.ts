@@ -1,10 +1,12 @@
-import { SomeNodeType } from '.'
 import { Position } from '../Base/position'
 import { Token } from '../base/tokens'
 import { Display } from '../Types'
 
-export interface NodeType {}
-class NumberNode implements Display, NodeType {
+export interface NodeType extends Display {
+  positionStart: Position
+  positionEnd: Position
+}
+class NumberNode implements NodeType {
   token: Token
   positionStart: Position
   positionEnd: Position
@@ -21,18 +23,18 @@ class NumberNode implements Display, NodeType {
   }
 }
 
-class BinaryOperationNode implements Display, NodeType {
-  leftNode
+class BinaryOperationNode implements NodeType {
+  leftNode: NodeType
   operationToken: Token
-  rightNode
+  rightNode: NodeType
 
   positionStart: Position
   positionEnd: Position
 
   constructor(
-    leftNode: SomeNodeType,
+    leftNode: NodeType,
     operationToken: Token | undefined,
-    rightNode: SomeNodeType,
+    rightNode: NodeType,
   ) {
     this.leftNode = leftNode
     this.operationToken = operationToken
@@ -47,9 +49,9 @@ class BinaryOperationNode implements Display, NodeType {
   }
 }
 
-class UnaryOperationNode implements Display, NodeType {
+class UnaryOperationNode implements NodeType {
   operation_token: Token
-  node
+  node: NodeType
 
   positionStart: Position
   positionEnd: Position
@@ -78,20 +80,51 @@ class VarAccessNode implements NodeType {
     this.positionStart = this.varNameToken.positionStart
     this.positionEnd = this.varNameToken.positionEnd
   }
+
+  descr(): string {
+    return 'VarAccessNode default descr'
+  }
 }
 
 class VarAssignNode implements NodeType {
   varNameToken: Token
-  valueNode
+  valueNode: NodeType
 
   positionStart: Position
   positionEnd: Position
-  constructor(varNameToken: Token, valueNode) {
+  constructor(varNameToken: Token, valueNode: NodeType) {
     this.varNameToken = varNameToken
     this.valueNode = valueNode
 
     this.positionStart = this.varNameToken.positionStart
     this.positionEnd = this.valueNode.positionEnd
+  }
+
+  descr(): string {
+    return 'VarAssignNode default descr'
+  }
+}
+
+export type IfExpressionCase = { condition: NodeType; expr: NodeType }
+class IfNode implements NodeType {
+  cases: Array<IfExpressionCase>
+  elseCase: NodeType
+
+  positionStart: Position
+  positionEnd: Position
+
+  constructor(cases: Array<IfExpressionCase>, elseCase?: NodeType) {
+    this.cases = cases
+    this.elseCase = elseCase
+
+    this.positionStart = this.cases[0].expr.positionStart
+    this.positionEnd = this.elseCase
+      ? this.elseCase.positionEnd
+      : this.cases[this.cases.length - 1].expr.positionEnd
+  }
+
+  descr(): string {
+    return 'IfExpressionCase default descr'
   }
 }
 
@@ -101,4 +134,5 @@ export {
   UnaryOperationNode,
   VarAccessNode,
   VarAssignNode,
+  IfNode,
 }

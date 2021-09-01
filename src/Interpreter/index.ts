@@ -1,6 +1,7 @@
 import { Context } from '../Context'
 import {
   BinaryOperationNode,
+  IfNode,
   NodeType,
   NumberNode,
   UnaryOperationNode,
@@ -32,6 +33,10 @@ class Interpreter {
     // Visit_VarAssignNode
     if (node instanceof VarAssignNode) {
       return this.visitVarAssignNode(node, context) // => RuntimeResult()
+    }
+    // Visit_VarAssignNode
+    if (node instanceof IfNode) {
+      return this.visitIfNode(node, context) // => RuntimeResult()
     }
   }
 
@@ -173,6 +178,28 @@ class Interpreter {
         .setContext(context)
         .setPosition(node.positionStart, node.positionEnd),
     )
+  }
+
+  visitIfNode(node: IfNode, context: Context): RuntimeResult {
+    let result = new RuntimeResult()
+    for (let { condition, expr } of node.cases) {
+      let conditionValue = result.register(this.visit(condition, context))
+      if (result.error) return result
+
+      if (conditionValue.isTrue()) {
+        let expressionValue = result.register(this.visit(expr, context))
+        if (result.error) return result
+        return result.success(expressionValue)
+      }
+    }
+
+    if (node.elseCase) {
+      let elseValue = result.register(this.visit(node.elseCase, context))
+      if (result.error) return result
+      return result.success(elseValue)
+    }
+
+    return result.success(null)
   }
 }
 

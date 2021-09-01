@@ -7,7 +7,16 @@ const LETTERS = ascii_letters();
 exports.LETTERS = LETTERS;
 const LETTERS_DIGITS = LETTERS + DIGITS;
 exports.LETTERS_DIGITS = LETTERS_DIGITS;
-const KEYWORDS = ['VAR', 'AND', 'OR', 'NOT'];
+const KEYWORDS = [
+    'VAR',
+    'AND',
+    'OR',
+    'NOT',
+    'IF',
+    'THEN',
+    'ELIF',
+    'ELSE',
+];
 exports.KEYWORDS = KEYWORDS;
 function ascii_letters() {
     const length = 26;

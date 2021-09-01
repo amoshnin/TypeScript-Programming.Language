@@ -1,4 +1,4 @@
-import { SomeNodeType } from '.'
+import { NodeType } from './nodes'
 
 class ParseResult {
   error = null
@@ -9,7 +9,7 @@ class ParseResult {
     this.advanceCount += 1
   }
 
-  register(result: ParseResult): SomeNodeType {
+  register(result: ParseResult): NodeType {
     this.advanceCount += result.advanceCount
     if (result.error) {
       this.error = result.error

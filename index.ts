@@ -7,21 +7,19 @@ const rl = readline.createInterface({
 })
 
 rl.question('basic > ', (text: string) => {
+  fn(text)
+  rl.question('basic > ', (text: string) => {
+    fn(text)
+    rl.close()
+  })
+})
+
+const fn = (text: string) => {
   let { result, error } = run('<stdin>', text)
 
   if (error) {
     console.log('Error: ' + error.descr())
-  } else {
+  } else if (result) {
     console.log(result.descr())
   }
-  rl.question('basic > ', (text: string) => {
-    let { result, error } = run('<stdin>', text)
-
-    if (error) {
-      console.log('Error: ' + error.descr())
-    } else {
-      console.log(result.descr())
-    }
-    rl.close()
-  })
-})
+}

@@ -144,6 +144,9 @@ class NumberClass {
             error: null,
         };
     }
+    isTrue() {
+        return this.value !== 0;
+    }
 }
 exports.NumberClass = NumberClass;
 //# sourceMappingURL=values.js.map
