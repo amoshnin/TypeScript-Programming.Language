@@ -13,6 +13,10 @@ type KeywordType =
   | 'THEN'
   | 'ELIF'
   | 'ELSE'
+  | 'FOR'
+  | 'TO'
+  | 'STEP'
+  | 'WHILE'
 
 const KEYWORDS: Array<KeywordType> = [
   'VAR',
@@ -23,6 +27,10 @@ const KEYWORDS: Array<KeywordType> = [
   'THEN',
   'ELIF',
   'ELSE',
+  'FOR',
+  'TO',
+  'STEP',
+  'WHILE',
 ]
 
 function ascii_letters() {

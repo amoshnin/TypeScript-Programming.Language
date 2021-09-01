@@ -10,7 +10,8 @@ Resources used: [Gabriele Tomassetti's blog entries](https://tomassetti.me/resou
 ### General information
 
 Programming language supports various fundamental programming concepts such as variable-declaration,
-function calling, conditional statements, loops, proper order of operations, and recursion.
+function calling, conditional statements, for and while loops, proper order of operations, recursion and much more.
+Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
 
 TODO: The language syntax is meant to be very readable and intuitive: for instance, every
 function body, conditional statement body, and loop body is wrapped in colons; loops
