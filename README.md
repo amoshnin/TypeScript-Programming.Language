@@ -2,7 +2,7 @@
 
 Small programming language and interpreter, whose design is inspired by BASIC language and is written fully in Rust.
 
-**Author**: Artem Moshnin
+**Author**: Artem Moshnin <br/>
 **Resources used**: [Gabriele Tomassetti's blog entries](https://tomassetti.me/resources-create-programming-languages/) with numerous useful resources (Books & Articles)
 
 ## Overview
