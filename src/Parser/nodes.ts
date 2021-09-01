@@ -180,6 +180,64 @@ class WhileNode implements NodeType {
   }
 }
 
+class FunctionDefinitionNode implements NodeType {
+  varNameToken?: Token
+  argNameTokens: Array<Token>
+  bodyNode: NodeType
+
+  positionStart: Position
+  positionEnd: Position
+
+  // varNameToken = name of the function
+  constructor(
+    bodyNode: NodeType,
+    argNameTokens: Array<Token> = [],
+    varNameToken?: Token,
+  ) {
+    this.varNameToken = varNameToken
+    this.argNameTokens = argNameTokens
+    this.bodyNode = bodyNode
+
+    if (this.varNameToken) {
+      this.positionStart = this.varNameToken.positionStart
+    } else if (this.argNameTokens.length > 0) {
+      this.positionStart = this.argNameTokens[0].positionStart
+    } else {
+      this.positionStart = this.bodyNode.positionStart
+    }
+
+    this.positionEnd = this.bodyNode.positionEnd
+  }
+
+  descr(): string {
+    return 'FunctionDefinitionNode default descr'
+  }
+}
+
+class CalNode implements NodeType {
+  nodeToCall: NodeType
+  argNodes: Array<NodeType>
+
+  positionStart: Position
+  positionEnd: Position
+
+  constructor(nodeToCall: NodeType, argNodes: Array<NodeType>) {
+    this.nodeToCall = nodeToCall
+    this.argNodes = argNodes
+
+    this.positionStart = this.nodeToCall.positionStart
+    if (this.argNodes.length > 0) {
+      this.positionEnd = this.argNodes[this.argNodes.length - 1].positionEnd
+    } else {
+      this.positionEnd = this.nodeToCall.positionEnd
+    }
+  }
+
+  descr(): string {
+    return 'CalNode default descr'
+  }
+}
+
 export {
   NumberNode,
   BinaryOperationNode,
@@ -189,4 +247,6 @@ export {
   IfNode,
   ForNode,
   WhileNode,
+  FunctionDefinitionNode,
+  CalNode,
 }

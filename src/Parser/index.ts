@@ -10,6 +10,7 @@ import {
   IfExpressionCase,
   ForNode,
   WhileNode,
+  FunctionDefinitionNode,
 } from './nodes'
 import { InvalidSyntaxError } from '../Shared/errors'
 import { ParseResult } from './ParseResult'
@@ -139,6 +140,10 @@ class Parser {
       return result.success(forExpression)
     } else if (token.matches('KEYWORD', 'WHILE')) {
       let whileExpression = result.register(this.whileExpression())
+      if (result.error) return result
+      return result.success(whileExpression)
+    } else if (token.matches('KEYWORD', 'FUN')) {
+      let whileExpression = result.register(this.functionDefinition())
       if (result.error) return result
       return result.success(whileExpression)
     }
@@ -472,6 +477,125 @@ class Parser {
     if (result.error) return result
 
     return result.success(new WhileNode(condition, body))
+  }
+
+  functionDefinition(): ParseResult {
+    let result = new ParseResult()
+
+    if (!this.currentToken.matches('KEYWORD', 'FUN')) {
+      return result.failure(
+        new InvalidSyntaxError(
+          this.currentToken.positionStart,
+          this.currentToken.positionEnd,
+          "Expected 'FUN'",
+        ),
+      )
+    }
+
+    result.registerAdvancement()
+    this.advance()
+
+    var varNameToken: Token = null
+    if (this.currentToken.type === 'IDENTIFIER') {
+      varNameToken = this.currentToken
+      result.registerAdvancement()
+      this.advance()
+
+      // @ts-ignore
+      if (this.currentToken.type !== 'LPAREN') {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected '('",
+          ),
+        )
+      }
+    } else {
+      if (this.currentToken.type !== 'LPAREN') {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected identifier or '('",
+          ),
+        )
+      }
+    }
+
+    result.registerAdvancement()
+    this.advance()
+
+    var argNameTokens: Array<Token> = []
+    // @ts-ignore
+    if (this.currentToken.type === 'IDENTIFIER') {
+      argNameTokens.push(this.currentToken)
+      result.registerAdvancement()
+      this.advance()
+
+      while (this.currentToken.type === 'COMMA') {
+        result.registerAdvancement()
+        this.advance()
+
+        if (this.currentToken.type !== 'IDENTIFIER') {
+          return result.failure(
+            new InvalidSyntaxError(
+              this.currentToken.positionStart,
+              this.currentToken.positionEnd,
+              'Expected identifier',
+            ),
+          )
+        }
+
+        argNameTokens.push(this.currentToken)
+        result.registerAdvancement()
+        this.advance()
+      }
+
+      if (this.currentToken.type !== 'RPAREN') {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected ',' or ')'",
+          ),
+        )
+      }
+    } else {
+      // @ts-ignore
+      if (this.currentToken.type !== 'RPAREN') {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected identifier or ')'",
+          ),
+        )
+      }
+    }
+
+    result.registerAdvancement()
+    this.advance()
+
+    if (this.currentToken.type !== 'ARROW') {
+      return result.failure(
+        new InvalidSyntaxError(
+          this.currentToken.positionStart,
+          this.currentToken.positionEnd,
+          "Expected '->'",
+        ),
+      )
+    }
+
+    result.registerAdvancement()
+    this.advance()
+
+    let nodeToReturn = result.register(this.expr())
+    if (result.error) return result
+
+    return result.success(
+      new FunctionDefinitionNode(nodeToReturn, argNameTokens, varNameToken),
+    )
   }
 }
 
