@@ -45,6 +45,7 @@ The role of the interpreter is to traverse through the AST (Abstract Syntax Tree
 
 <details>
   <summary style="fontWeight:bold;">Comparison, Logical Operators and Booleans</summary>
+
 **Comparison Operators**: =, !=, <, >, <=, >= <br/>
 **Logical Operators**: and, or, not <br/>
 
