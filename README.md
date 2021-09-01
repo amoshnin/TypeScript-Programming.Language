@@ -13,8 +13,11 @@ Programming language supports various fundamental programming concepts such as v
 function calling, conditional statements, for and while loops, proper order of operations, recursion and much more.
 
 > In addition, the language also includes the following built-in datatypes: Integers, Floats, Strings, Lists.
+
 > Each datatype also has its own methods implemented that can be called on instances of these datatypes.
+
 > In addition, the language also includes the following buil-in functions: print(), input(), clear().
+
 > In addition, the language also supports type-checking.
 
 Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
