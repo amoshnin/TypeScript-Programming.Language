@@ -214,7 +214,7 @@ class FunctionDefinitionNode implements NodeType {
   }
 }
 
-class CalNode implements NodeType {
+class CallNode implements NodeType {
   nodeToCall: NodeType
   argNodes: Array<NodeType>
 
@@ -234,7 +234,7 @@ class CalNode implements NodeType {
   }
 
   descr(): string {
-    return 'CalNode default descr'
+    return 'CallNode default descr'
   }
 }
 
@@ -248,5 +248,5 @@ export {
   ForNode,
   WhileNode,
   FunctionDefinitionNode,
-  CalNode,
+  CallNode,
 }

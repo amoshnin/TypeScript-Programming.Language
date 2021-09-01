@@ -11,6 +11,7 @@ import {
   ForNode,
   WhileNode,
   FunctionDefinitionNode,
+  CallNode,
 } from './nodes'
 import { InvalidSyntaxError } from '../Shared/errors'
 import { ParseResult } from './ParseResult'
@@ -19,6 +20,7 @@ type BinaryFnType =
   | 'FACTOR'
   | 'TERM'
   | 'ATOM'
+  | 'CALL'
   | 'COMPARISON_EXPRESSION'
   | 'ARITHMETIC_EXPRESSION'
 
@@ -71,6 +73,8 @@ class Parser {
         ? this.comparisonExpression()
         : x === 'ARITHMETIC_EXPRESSION'
         ? this.arithmeticExpression()
+        : x === 'CALL'
+        ? this.call()
         : this.term()
     }
 
@@ -98,6 +102,60 @@ class Parser {
       left = new BinaryOperationNode(left, operation_token, right)
     }
     return result.success(left)
+  }
+
+  call(): ParseResult {
+    let result = new ParseResult()
+    let atom = result.register(this.atom())
+    if (result.error) return result
+
+    if (this.currentToken.type === 'LPAREN') {
+      result.registerAdvancement()
+      this.advance()
+      var argNodes: Array<NodeType> = []
+
+      // @ts-ignore
+      if (this.currentToken.type === 'RPAREN') {
+        result.registerAdvancement()
+        this.advance()
+      } else {
+        argNodes.push(result.register(this.expr()))
+        if (result.error) {
+          return result.failure(
+            new InvalidSyntaxError(
+              this.currentToken.positionStart,
+              this.currentToken.positionEnd,
+              "Expected ')', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(' or 'NOT'",
+            ),
+          )
+        }
+
+        // @ts-ignore
+        while (this.currentToken.type === 'COMMA') {
+          result.registerAdvancement()
+          this.advance()
+
+          argNodes.push(result.register(this.expr()))
+          if (result.error) return result
+        }
+
+        // @ts-ignore
+        if (this.currentToken.type !== 'RPAREN') {
+          return result.failure(
+            new InvalidSyntaxError(
+              this.currentToken.positionStart,
+              this.currentToken.positionEnd,
+              "Expected ',' or ')'",
+            ),
+          )
+        }
+
+        result.registerAdvancement()
+        this.advance()
+      }
+      return result.success(new CallNode(atom, argNodes))
+    }
+    return result.success(atom)
   }
 
   atom() {
@@ -158,7 +216,7 @@ class Parser {
   }
 
   power() {
-    return this.binaryOperation('ATOM', [{ type: 'POW' }], 'FACTOR')
+    return this.binaryOperation('CALL', [{ type: 'POW' }], 'FACTOR')
   }
 
   factor() {
