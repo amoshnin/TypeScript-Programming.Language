@@ -1,8 +1,9 @@
+import { ErrorBase } from '../shared/errors'
 import { NodeType } from './nodes'
 
 class ParseResult {
-  error = null
-  node = null
+  error: ErrorBase = null
+  node: NodeType = null
   advanceCount = 0
 
   registerAdvancement() {
@@ -17,12 +18,12 @@ class ParseResult {
     return result.node
   }
 
-  success(node): ParseResult {
+  success(node: NodeType): ParseResult {
     this.node = node
     return this
   }
 
-  failure(error?): ParseResult {
+  failure(error?: ErrorBase): ParseResult {
     if (!this.error || this.advanceCount === 0) {
       this.error = error
     }

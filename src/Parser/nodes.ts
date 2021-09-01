@@ -128,6 +128,58 @@ class IfNode implements NodeType {
   }
 }
 
+class ForNode implements NodeType {
+  varNameToken: Token
+  startValueNode: NodeType
+  endValueNode: NodeType
+  bodyNode: NodeType
+  stepValueNode?: NodeType
+
+  positionStart: Position
+  positionEnd: Position
+
+  constructor(
+    varNameToken: Token,
+    startValueNode: NodeType,
+    endValueNode: NodeType,
+    bodyNode: NodeType,
+    stepValueNode?: NodeType,
+  ) {
+    this.varNameToken = varNameToken
+    this.startValueNode = startValueNode
+    this.endValueNode = endValueNode
+    this.bodyNode = bodyNode
+    this.stepValueNode = stepValueNode
+
+    this.positionStart = this.varNameToken.positionStart
+    this.positionEnd = this.bodyNode.positionEnd
+  }
+
+  descr(): string {
+    return 'ForNode default descr'
+  }
+}
+
+class WhileNode implements NodeType {
+  conditionNode: NodeType
+  bodyNode: NodeType
+
+  positionStart: Position
+  positionEnd: Position
+
+  constructor(conditionNode: NodeType, bodyNode: NodeType) {
+    this.conditionNode = conditionNode
+    this.bodyNode = bodyNode
+
+    this.positionStart = this.conditionNode.positionStart
+    this.positionEnd = this.bodyNode.positionEnd
+  }
+
+  descr(): string {
+    return 'WhileNode default descr'
+  }
+}
+
 export {
   NumberNode,
   BinaryOperationNode,
@@ -135,4 +187,6 @@ export {
   VarAccessNode,
   VarAssignNode,
   IfNode,
+  ForNode,
+  WhileNode,
 }
