@@ -134,7 +134,7 @@ FUN add (a, b) -> a + b // <function add>
 add(5, 6) // 11
 ```
 
-### Re-assigning a function to a variable
+### Re-assigning function to a variable
 
 ```javascript
 FUN add (a, b) -> a + b // <function add>
