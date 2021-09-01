@@ -14,23 +14,22 @@ The design of the language is heavily inspired by BASIC and the language it is w
 Programming language supports various fundamental programming concepts such as variable-declaration,
 function calling, conditional statements, for and while loops, proper order of operations, recursion and much more.
 
-> 1. The language also includes the following built-in datatypes: Integers, Floats, Strings, Lists.
+> The language also includes the following built-in datatypes: Integers, Floats, Strings, Lists.
 
-> 2. Each datatype also has its own methods implemented that can be called on instances of these datatypes.
+> Each datatype also has its own methods implemented that can be called on instances of these datatypes.
 
-> 3. The language also includes the following built-in global functions: print(), input(), clear().
+> The language also includes the following built-in global functions: print(), input(), clear().
 
-> 4. The language also includes a type-checking system.
+> The language also includes a type-checking system.
 
-> 5. Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
+> Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
 
-TODO: The language syntax is meant to be very readable and intuitive: for instance, every
-function body, conditional statement body, and loop body is wrapped in colons; loops
-follow a "from [startingNumber] to [endingNumber] with [variable]" syntax; and variable types are
-specified upon declaration.
+The language syntax is meant to be very readable and intuitive: for instance, every<br/>
+function body, conditional statement body, and loop body is wrapped in colons; loops<br/>
+follow a "from [startingNumber] to [endingNumber] with [variable]" syntax; and variable types are specified upon declaration.<br/>
 
-Below is the language's EBNF-based grammar, and following that are some examples of programs that the language can run.
-Even further down is a link to a repl.it where the programs can be run.
+Below is the language's EBNF-based grammar, and following that are some examples of programs that the language can run.<br/>
+Even further down is a link to a repl.it where the programs can be run.<br/>
 
 ### Parser
 
