@@ -141,8 +141,31 @@ add(5, 6) // 11
 
 ```javascript
 FUN add (a, b) -> a + b // <function add>
-VAR some_func = add // <function add>
-some_func(1, 2) // 3
+VAR someFunc = add // <function add>
+someFunc(1, 2) // 3
+```
+
+### Anonymous functions
+
+```javascript
+FUN (a) -> a + 6 // function<anonymous>
+VAR someFunc = FUN(a) -> a + 6
+someFunc(12) // 12 + 6 = 18
+```
+
+### Structured Error Traceback when calling functions which throw some error
+
+```javascript
+FUN test(a) -> a / 0 // function<test>
+test(12345)
+// Error output:
+// Traceback (most recent call last):
+//    File <stdin>, line: 1, in <program>
+//    File <stdin>, line: 1, in test
+// Runtime Error: Division by zero
+//
+// FUN test(a) -> a / 0
+//                    ^
 ```
 
 ### Basic Conditional Statements
