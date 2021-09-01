@@ -24,8 +24,7 @@ function calling, conditional statements, for and while loops, proper order of o
 
 > Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
 
-Below is the language's EBNF-based grammar, and following that are some examples of programs that the language can run.<br/>
-Even further down is a link to a repl.it where the programs can be run.<br/>
+Below is the language's EBNF-based grammar, and following that are some examples of programs that the language can run. Even further down is a link to a repl.it where the programs can be run.
 
 ### Parser
 
