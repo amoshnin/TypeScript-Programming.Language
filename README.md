@@ -131,7 +131,13 @@ Example of Logical Operators:
 
 ### Basic Conditional Statements
 
-### Basic Loops
+### For Loop
+
+```javascript
+VAR result = 1
+FOR i = 1 TO 6 THEN VAR result = result * i
+result // result => 120
+```
 
 ### Nested Loops
 

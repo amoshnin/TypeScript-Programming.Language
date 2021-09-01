@@ -10,7 +10,10 @@ rl.question('basic > ', (text: string) => {
   fn(text)
   rl.question('basic > ', (text: string) => {
     fn(text)
-    rl.close()
+    rl.question('basic > ', (text: string) => {
+      fn(text)
+      rl.close()
+    })
   })
 })
 

@@ -16,6 +16,10 @@ const KEYWORDS = [
     'THEN',
     'ELIF',
     'ELSE',
+    'FOR',
+    'TO',
+    'STEP',
+    'WHILE',
 ];
 exports.KEYWORDS = KEYWORDS;
 function ascii_letters() {

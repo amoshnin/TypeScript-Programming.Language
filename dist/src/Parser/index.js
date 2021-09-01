@@ -84,6 +84,9 @@ class Parser {
                 this.advance();
                 return result.success(expr);
             }
+            else {
+                return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')'"));
+            }
         }
         else if (token.matches('KEYWORD', 'IF')) {
             let ifExpression = result.register(this.ifExpression());
@@ -91,7 +94,18 @@ class Parser {
                 return result;
             return result.success(ifExpression);
         }
-        return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')'"));
+        else if (token.matches('KEYWORD', 'FOR')) {
+            let forExpression = result.register(this.forExpression());
+            if (result.error)
+                return result;
+            return result.success(forExpression);
+        }
+        else if (token.matches('KEYWORD', 'WHILE')) {
+            let whileExpression = result.register(this.whileExpression());
+            if (result.error)
+                return result;
+            return result.success(whileExpression);
+        }
         return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected int, float, identifier, '+', '-' or '('"));
     }
     power() {
@@ -216,6 +230,74 @@ class Parser {
                 return result;
         }
         return result.success(new nodes_1.IfNode(cases, elseCase));
+    }
+    forExpression() {
+        let result = new ParseResult_1.ParseResult();
+        if (!this.currentToken.matches('KEYWORD', 'FOR')) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'FOR'"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        if (this.currentToken.type !== 'IDENTIFIER') {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, 'Expected identifier'));
+        }
+        let varName = this.currentToken;
+        result.registerAdvancement();
+        this.advance();
+        //@ts-ignore
+        if (this.currentToken.type !== 'EQ') {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '='"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        let startValue = result.register(this.expr());
+        if (result.error)
+            return result;
+        if (!this.currentToken.matches('KEYWORD', 'TO')) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'TO'"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        let endValue = result.register(this.expr());
+        if (result.error)
+            return result;
+        var stepValue = null;
+        if (this.currentToken.matches('KEYWORD', 'STEP')) {
+            result.registerAdvancement();
+            this.advance();
+            stepValue = result.register(this.expr());
+            if (result.error)
+                return result;
+        }
+        if (!this.currentToken.matches('KEYWORD', 'THEN')) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'THEN'"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        let body = result.register(this.expr());
+        if (result.error)
+            return result;
+        return result.success(new nodes_1.ForNode(varName, startValue, endValue, body, stepValue));
+    }
+    whileExpression() {
+        let result = new ParseResult_1.ParseResult();
+        if (!this.currentToken.matches('KEYWORD', 'WHILE')) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'WHILE'"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        let condition = result.register(this.expr());
+        if (result.error)
+            return result;
+        if (!this.currentToken.matches('KEYWORD', 'THEN')) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'THEN'"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        let body = result.register(this.expr());
+        if (result.error)
+            return result;
+        return result.success(new nodes_1.WhileNode(condition, body));
     }
 }
 exports.Parser = Parser;

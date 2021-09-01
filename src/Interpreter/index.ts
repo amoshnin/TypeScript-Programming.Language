@@ -1,12 +1,14 @@
 import { Context } from '../Context'
 import {
   BinaryOperationNode,
+  ForNode,
   IfNode,
   NodeType,
   NumberNode,
   UnaryOperationNode,
   VarAccessNode,
   VarAssignNode,
+  WhileNode,
 } from '../Parser/nodes'
 import { RuntimeError } from '../shared/errors'
 import { RuntimeResult } from './RuntimeResult'
@@ -34,9 +36,17 @@ class Interpreter {
     if (node instanceof VarAssignNode) {
       return this.visitVarAssignNode(node, context) // => RuntimeResult()
     }
-    // Visit_VarAssignNode
+    // Visit_IfNode
     if (node instanceof IfNode) {
       return this.visitIfNode(node, context) // => RuntimeResult()
+    }
+    // Visit_ForNode
+    if (node instanceof ForNode) {
+      return this.visitForNode(node, context) // => RuntimeResult()
+    }
+    // Visit_WhileNode
+    if (node instanceof WhileNode) {
+      return this.visitWhileNode(node, context) // => RuntimeResult()
     }
   }
 
@@ -197,6 +207,61 @@ class Interpreter {
       let elseValue = result.register(this.visit(node.elseCase, context))
       if (result.error) return result
       return result.success(elseValue)
+    }
+
+    return result.success(null)
+  }
+
+  visitForNode(node: ForNode, context: Context): RuntimeResult {
+    let result = new RuntimeResult()
+    let startValue = result.register(this.visit(node.startValueNode, context))
+    if (result.error) return result
+
+    let endValue = result.register(this.visit(node.endValueNode, context))
+    if (result.error) return result
+
+    var stepValue: NumberClass
+    if (node.stepValueNode) {
+      stepValue = result.register(this.visit(node.stepValueNode, context))
+      if (result.error) return result
+    } else {
+      stepValue = new NumberClass(1)
+    }
+
+    let i = startValue.value
+    var condition: () => boolean
+    if (stepValue.value >= 0) {
+      condition = () => i < endValue.value
+    } else {
+      condition = () => i > endValue.value
+    }
+
+    while (condition()) {
+      context.symbolTable.set(
+        String(node.varNameToken.value),
+        new NumberClass(i),
+      )
+      i += stepValue.value
+
+      result.register(this.visit(node.bodyNode, context))
+      if (result.error) return result
+    }
+
+    return result.success(null)
+  }
+
+  visitWhileNode(node: WhileNode, context: Context): RuntimeResult {
+    let result = new RuntimeResult()
+    while (true) {
+      let condition = result.register(this.visit(node.conditionNode, context))
+      if (result.error) return result
+
+      if (!condition.isTrue()) {
+        break
+      }
+
+      result.register(this.visit(node.bodyNode, context))
+      if (result.error) return result
     }
 
     return result.success(null)

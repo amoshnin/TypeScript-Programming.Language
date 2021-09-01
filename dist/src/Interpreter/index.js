@@ -27,9 +27,17 @@ class Interpreter {
         if (node instanceof nodes_1.VarAssignNode) {
             return this.visitVarAssignNode(node, context); // => RuntimeResult()
         }
-        // Visit_VarAssignNode
+        // Visit_IfNode
         if (node instanceof nodes_1.IfNode) {
             return this.visitIfNode(node, context); // => RuntimeResult()
+        }
+        // Visit_ForNode
+        if (node instanceof nodes_1.ForNode) {
+            return this.visitForNode(node, context); // => RuntimeResult()
+        }
+        // Visit_WhileNode
+        if (node instanceof nodes_1.WhileNode) {
+            return this.visitWhileNode(node, context); // => RuntimeResult()
         }
     }
     visitVarAccessNode(node, context) {
@@ -179,6 +187,55 @@ class Interpreter {
             if (result.error)
                 return result;
             return result.success(elseValue);
+        }
+        return result.success(null);
+    }
+    visitForNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        let startValue = result.register(this.visit(node.startValueNode, context));
+        if (result.error)
+            return result;
+        let endValue = result.register(this.visit(node.endValueNode, context));
+        if (result.error)
+            return result;
+        var stepValue;
+        if (node.stepValueNode) {
+            stepValue = result.register(this.visit(node.stepValueNode, context));
+            if (result.error)
+                return result;
+        }
+        else {
+            stepValue = new values_1.NumberClass(1);
+        }
+        let i = startValue.value;
+        var condition;
+        if (stepValue.value >= 0) {
+            condition = () => i < endValue.value;
+        }
+        else {
+            condition = () => i > endValue.value;
+        }
+        while (condition()) {
+            context.symbolTable.set(String(node.varNameToken.value), new values_1.NumberClass(i));
+            i += stepValue.value;
+            result.register(this.visit(node.bodyNode, context));
+            if (result.error)
+                return result;
+        }
+        return result.success(null);
+    }
+    visitWhileNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        while (true) {
+            let condition = result.register(this.visit(node.conditionNode, context));
+            if (result.error)
+                return result;
+            if (!condition.isTrue()) {
+                break;
+            }
+            result.register(this.visit(node.bodyNode, context));
+            if (result.error)
+                return result;
         }
         return result.success(null);
     }

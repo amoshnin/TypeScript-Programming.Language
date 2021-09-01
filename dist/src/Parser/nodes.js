@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IfNode = exports.VarAssignNode = exports.VarAccessNode = exports.UnaryOperationNode = exports.BinaryOperationNode = exports.NumberNode = void 0;
+exports.WhileNode = exports.ForNode = exports.IfNode = exports.VarAssignNode = exports.VarAccessNode = exports.UnaryOperationNode = exports.BinaryOperationNode = exports.NumberNode = void 0;
 class NumberNode {
     constructor(token) {
         this.token = token;
@@ -74,4 +74,31 @@ class IfNode {
     }
 }
 exports.IfNode = IfNode;
+class ForNode {
+    constructor(varNameToken, startValueNode, endValueNode, bodyNode, stepValueNode) {
+        this.varNameToken = varNameToken;
+        this.startValueNode = startValueNode;
+        this.endValueNode = endValueNode;
+        this.bodyNode = bodyNode;
+        this.stepValueNode = stepValueNode;
+        this.positionStart = this.varNameToken.positionStart;
+        this.positionEnd = this.bodyNode.positionEnd;
+    }
+    descr() {
+        return 'ForNode default descr';
+    }
+}
+exports.ForNode = ForNode;
+class WhileNode {
+    constructor(conditionNode, bodyNode) {
+        this.conditionNode = conditionNode;
+        this.bodyNode = bodyNode;
+        this.positionStart = this.conditionNode.positionStart;
+        this.positionEnd = this.bodyNode.positionEnd;
+    }
+    descr() {
+        return 'WhileNode default descr';
+    }
+}
+exports.WhileNode = WhileNode;
 //# sourceMappingURL=nodes.js.map

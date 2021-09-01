@@ -10,7 +10,10 @@ rl.question('basic > ', (text) => {
     fn(text);
     rl.question('basic > ', (text) => {
         fn(text);
-        rl.close();
+        rl.question('basic > ', (text) => {
+            fn(text);
+            rl.close();
+        });
     });
 });
 const fn = (text) => {
