@@ -43,8 +43,8 @@ The role of the interpreter is to traverse through the AST (Abstract Syntax Tree
 
 ### Variables declaration
 
-### Comparison, Logical Operators and Booleans
-
+<details>
+  <summary style="fontWeight:bold;">Comparison, Logical Operators and Booleans</summary>
 **Comparison Operators**: =, !=, <, >, <=, >= <br/>
 **Logical Operators**: and, or, not <br/>
 
@@ -54,10 +54,12 @@ The role of the interpreter is to traverse through the AST (Abstract Syntax Tree
 
 **Booleans**: 0 = FALSE, 1 = TRUE
 
+</details>
+
 ## Grammar
 
 <details>
-  <summary style="fontWeight:bold;">Grammar (EBNF-based) of the Lemo-Programming Language (click to expand)</summary>
+  <summary style="fontWeight:bold;">Grammar (EBNF-based) of the Lemo-Programming Language</summary>
 
     -> Grammar (EBNF-based) of the Lemo-Programming Language <-
 
