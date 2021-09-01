@@ -1,7 +1,7 @@
 # Lemo-Programming-Language and Interpreter
 
 Lemo is a programming language and interpreter, which I developed during the Summer Holidays of 2021 <br/>
-Motivation for developing was pure interest and curiosity in learning how programming languages work under the hood <br/>
+Motivation for developing was pure interest & curiosity in learning how programming languages work under the hood <br/>
 The design of the language is heavily inspired by BASIC and the language it is written in is TypeScript <br/>
 
 **Author**: Artem Moshnin <br/>
