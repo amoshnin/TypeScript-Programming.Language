@@ -48,6 +48,7 @@ The role of the interpreter is to traverse through the AST (Abstract Syntax Tree
 **Comparison Operators**: =, !=, <, >, <=, >=
 
 **Logical Operators**: and, or, not
+
 Example of Logical Operators:
 5 == 5 and 6 == 6 => 1
 1 + 1 == 2 or 2 + 2 == 5 => 1
