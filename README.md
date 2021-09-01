@@ -14,15 +14,15 @@ The design of the language is heavily inspired by BASIC and the language it is w
 Programming language supports various fundamental programming concepts such as variable-declaration,
 function calling, conditional statements, for and while loops, proper order of operations, recursion and much more.
 
-> The language also includes the following built-in datatypes: Integers, Floats, Strings, Lists.
+> 1. The language also includes the following built-in datatypes: Integers, Floats, Strings, Lists.
 
-> Each datatype also has its own methods implemented that can be called on instances of these datatypes.
+> 2. Each datatype also has its own methods implemented that can be called on instances of these datatypes.
 
-> The language also includes the following built-in global functions: print(), input(), clear().
+> 3. The language also includes the following built-in global functions: print(), input(), clear().
 
-> The language also includes a type-checking system.
+> 4. The language also includes a type-checking system.
 
-Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
+> 5. Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
 
 TODO: The language syntax is meant to be very readable and intuitive: for instance, every
 function body, conditional statement body, and loop body is wrapped in colons; loops
