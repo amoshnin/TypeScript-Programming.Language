@@ -24,10 +24,6 @@ function calling, conditional statements, for and while loops, proper order of o
 
 > Multi-line support is integrated, as well as the ability to run external files of '.lemo' format.
 
-The language syntax is meant to be very readable and intuitive: for instance, every<br/>
-function body, conditional statement body, and loop body is wrapped in colons; loops<br/>
-follow a "from [startingNumber] to [endingNumber] with [variable]" syntax; and variable types are specified upon declaration.<br/>
-
 Below is the language's EBNF-based grammar, and following that are some examples of programs that the language can run.<br/>
 Even further down is a link to a repl.it where the programs can be run.<br/>
 
