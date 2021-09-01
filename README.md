@@ -16,7 +16,7 @@ function calling, conditional statements, for and while loops, proper order of o
 
 > Each datatype also has its own methods implemented that can be called on instances of these datatypes.
 
-> The language also includes the following buil-in functions: print(), input(), clear().
+> The language also includes the following built-in global functions: print(), input(), clear().
 
 > The language also includes a type-checking system.
 
