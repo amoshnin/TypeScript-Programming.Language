@@ -1,4 +1,4 @@
-import { Token, TokenType } from '../base/tokens'
+import { StringOrNumberType, Token, TokenType } from '../base/tokens'
 import {
   BinaryOperationNode,
   NumberNode,
@@ -15,6 +15,12 @@ export type SomeNodeType =
   | Token
   | ParseResult
 
+type BinaryFnType =
+  | 'FACTOR'
+  | 'TERM'
+  | 'ATOM'
+  | 'COMPARISON_EXPRESSION'
+  | 'ARITHMETIC_EXPRESSION'
 class Parser {
   tokens: Array<Token>
   tokenIndex: number = -1
@@ -49,15 +55,21 @@ class Parser {
   }
 
   binaryOperation(
-    leftFn: 'FACTOR' | 'TERM' | 'ATOM',
-    operations: Array<TokenType>,
-    rightFn?: 'FACTOR' | 'TERM' | 'ATOM',
+    leftFn: BinaryFnType,
+    operations: Array<{ type: TokenType; value?: StringOrNumberType }>,
+    rightFn?: BinaryFnType,
   ): ParseResult {
-    const s = (x: 'FACTOR' | 'TERM' | 'ATOM') => {
+    let q = operations.map((item) => JSON.stringify(item))
+
+    const s = (x: BinaryFnType) => {
       return x === 'FACTOR'
         ? this.factor()
         : x === 'ATOM'
         ? this.atom()
+        : x === 'COMPARISON_EXPRESSION'
+        ? this.comparisonExpression()
+        : x === 'ARITHMETIC_EXPRESSION'
+        ? this.arithmeticExpression()
         : this.term()
     }
 
@@ -68,7 +80,15 @@ class Parser {
     let result = new ParseResult()
     var left = result.register(s(leftFn))
     if (result.error) return result
-    while (operations.includes(this.currentToken.type)) {
+    while (
+      q.includes(JSON.stringify({ type: this.currentToken.type })) ||
+      q.includes(
+        JSON.stringify({
+          type: this.currentToken.type,
+          value: this.currentToken.value,
+        }),
+      )
+    ) {
       let operation_token = this.currentToken
       result.registerAdvancement()
       this.advance()
@@ -121,7 +141,7 @@ class Parser {
   }
 
   power() {
-    return this.binaryOperation('ATOM', ['POW'], 'FACTOR')
+    return this.binaryOperation('ATOM', [{ type: 'POW' }], 'FACTOR')
   }
 
   factor() {
@@ -138,7 +158,7 @@ class Parser {
   }
 
   term(): ParseResult {
-    return this.binaryOperation('FACTOR', ['MUL', 'DIV'])
+    return this.binaryOperation('FACTOR', [{ type: 'MUL' }, { type: 'DIV' }])
   }
 
   expr(): ParseResult {
@@ -179,7 +199,13 @@ class Parser {
       return result.success(new VarAssignNode(varName, expr))
     }
 
-    let node = result.register(this.binaryOperation('TERM', ['PLUS', 'MINUS']))
+    let node = result.register(
+      this.binaryOperation('COMPARISON_EXPRESSION', [
+        { type: 'KEYWORD', value: 'AND' },
+        { type: 'KEYWORD', value: 'OR' },
+      ]),
+    )
+
     if (result.error) {
       return result.failure(
         new InvalidSyntaxError(
@@ -190,6 +216,46 @@ class Parser {
       )
     }
     return result.success(node)
+  }
+
+  comparisonExpression(): ParseResult {
+    let result = new ParseResult()
+    if (this.currentToken.matches('KEYWORD', 'NOT')) {
+      let operationToken = this.currentToken
+      result.registerAdvancement()
+      this.advance()
+
+      let node = result.register(this.comparisonExpression())
+      if (result.error) return result
+      return result.success(new UnaryOperationNode(operationToken, node))
+    }
+
+    let node = result.register(
+      this.binaryOperation('ARITHMETIC_EXPRESSION', [
+        { type: 'EE' },
+        { type: 'NE' },
+        { type: 'LT' },
+        { type: 'GT' },
+        { type: 'LTE' },
+        { type: 'GTE' },
+      ]),
+    )
+
+    if (result.error) {
+      return result.failure(
+        new InvalidSyntaxError(
+          this.currentToken.positionStart,
+          this.currentToken.positionEnd,
+          "Expected int, float, identifier, '+', '-' or '(', 'NOT'",
+        ),
+      )
+    }
+
+    return result.success(node)
+  }
+
+  arithmeticExpression(): ParseResult {
+    return this.binaryOperation('TERM', [{ type: 'PLUS' }, { type: 'MINUS' }])
   }
 }
 

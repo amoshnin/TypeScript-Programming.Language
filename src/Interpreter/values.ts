@@ -104,6 +104,95 @@ class NumberClass implements Display {
       }
     }
   }
+
+  getComparisonEq(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value === other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  getComparisonNe(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value !== other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  getComparisonLt(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value < other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  getComparisonGt(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value > other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  getComparisonLte(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value <= other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  getComparisonGte(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value >= other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  andedBy(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value && other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  oredBy(other: NumberClass): ReturnType {
+    if (other instanceof NumberClass) {
+      return {
+        number: new NumberClass(Number(this.value || other.value)).setContext(
+          this.context,
+        ),
+        error: null,
+      }
+    }
+  }
+  notted(): ReturnType {
+    return {
+      number: new NumberClass(this.value === 0 ? 1 : 0).setContext(
+        this.context,
+      ),
+      error: null,
+    }
+  }
 }
 
 export { NumberClass }

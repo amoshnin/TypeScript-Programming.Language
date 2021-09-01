@@ -48,7 +48,7 @@ class BinaryOperationNode implements Display, NodeType {
 }
 
 class UnaryOperationNode implements Display, NodeType {
-  operation_token
+  operation_token: Token
   node
 
   positionStart: Position

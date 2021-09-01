@@ -54,10 +54,6 @@ class Lexer {
                 tokens.push(new tokens_1.Token('POW', undefined, this.position));
                 this.advance();
             }
-            else if (this.currentChar === '=') {
-                tokens.push(new tokens_1.Token('EQ', undefined, this.position));
-                this.advance();
-            }
             else if (this.currentChar === '(') {
                 tokens.push(new tokens_1.Token('LPAREN', undefined, this.position));
                 this.advance();
@@ -65,6 +61,21 @@ class Lexer {
             else if (this.currentChar === ')') {
                 tokens.push(new tokens_1.Token('RPAREN', undefined, this.position));
                 this.advance();
+            }
+            else if (this.currentChar === '!') {
+                const { token, error } = this.makeNotEquals();
+                if (error)
+                    return { tokens: [], error };
+                tokens.push(token);
+            }
+            else if (this.currentChar === '=') {
+                tokens.push(this.makeEquals());
+            }
+            else if (this.currentChar === '<') {
+                tokens.push(this.makeLessThan());
+            }
+            else if (this.currentChar === '>') {
+                tokens.push(this.makeGreaterThan());
             }
             else {
                 let positionStart = this.position.copy();
@@ -78,6 +89,49 @@ class Lexer {
         }
         tokens.push(new tokens_1.Token('EOF', undefined, this.position));
         return { tokens, error: null };
+    }
+    makeNotEquals() {
+        let positionStart = this.position.copy();
+        this.advance();
+        if (this.currentChar === '=') {
+            this.advance();
+            return { token: new tokens_1.Token('NE', undefined, positionStart, this.position) };
+        }
+        this.advance();
+        return {
+            error: new errors_1.ExpectedCharError(positionStart, this.position, "'=' (after '!')"),
+        };
+    }
+    makeEquals() {
+        var tokenType = 'EQ';
+        let positionStart = this.position.copy();
+        this.advance();
+        // Checking if it is double equals
+        if (this.currentChar === '=') {
+            this.advance();
+            tokenType = 'EE';
+        }
+        return new tokens_1.Token(tokenType, undefined, positionStart, this.position);
+    }
+    makeLessThan() {
+        var tokenType = 'LT';
+        let positionStart = this.position.copy();
+        this.advance();
+        if (this.currentChar === '=') {
+            this.advance();
+            tokenType = 'LTE';
+        }
+        return new tokens_1.Token(tokenType, undefined, positionStart, this.position);
+    }
+    makeGreaterThan() {
+        var tokenType = 'GT';
+        let positionStart = this.position.copy();
+        this.advance();
+        if (this.currentChar === '=') {
+            this.advance();
+            tokenType = 'GTE';
+        }
+        return new tokens_1.Token(tokenType, undefined, positionStart, this.position);
     }
     makeIdentifier() {
         var idString = '';

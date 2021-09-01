@@ -96,6 +96,38 @@ class Interpreter {
       const { number, error } = left.poweredBy(right)
       result = number
       resultError = error
+    } else if (node.operationToken.type === 'EE') {
+      const { number, error } = left.getComparisonEq(right)
+      result = number
+      resultError = error
+    } else if (node.operationToken.type === 'NE') {
+      const { number, error } = left.getComparisonNe(right)
+      result = number
+      resultError = error
+    } else if (node.operationToken.type === 'LT') {
+      const { number, error } = left.getComparisonLt(right)
+      result = number
+      resultError = error
+    } else if (node.operationToken.type === 'GT') {
+      const { number, error } = left.getComparisonGt(right)
+      result = number
+      resultError = error
+    } else if (node.operationToken.type === 'LTE') {
+      const { number, error } = left.getComparisonLte(right)
+      result = number
+      resultError = error
+    } else if (node.operationToken.type === 'GTE') {
+      const { number, error } = left.getComparisonGte(right)
+      result = number
+      resultError = error
+    } else if (node.operationToken.matches('KEYWORD', 'AND')) {
+      const { number, error } = left.andedBy(right)
+      result = number
+      resultError = error
+    } else if (node.operationToken.matches('KEYWORD', 'OR')) {
+      const { number, error } = left.oredBy(right)
+      result = number
+      resultError = error
     }
 
     if (resultError) {
@@ -120,7 +152,12 @@ class Interpreter {
       const { number, error } = toChangeNumber.multipliedBy(new NumberClass(-1))
       toChangeNumber = number
       resultError = error
+    } else if (node.operation_token.matches('KEYWORD', 'NOT')) {
+      const { number, error } = toChangeNumber.notted()
+      toChangeNumber = number
+      resultError = error
     }
+
     if (resultError) {
       return runtimeResult.failure(resultError)
     } else {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RuntimeError = exports.InvalidSyntaxError = exports.IllegalCharError = exports.ErrorBase = void 0;
+exports.ExpectedCharError = exports.RuntimeError = exports.InvalidSyntaxError = exports.IllegalCharError = exports.ErrorBase = void 0;
 class ErrorBase {
     constructor(positionStart, positionEnd, error_name, details) {
         this.positionStart = positionStart;
@@ -62,4 +62,10 @@ class RuntimeError extends ErrorBase {
     }
 }
 exports.RuntimeError = RuntimeError;
+class ExpectedCharError extends ErrorBase {
+    constructor(positionStart, positionEnd, details) {
+        super(positionStart, positionEnd, 'Expected Character', details);
+    }
+}
+exports.ExpectedCharError = ExpectedCharError;
 //# sourceMappingURL=errors.js.map

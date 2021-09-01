@@ -23,17 +23,17 @@ type TokenType =
   | 'GTE'
   | 'EOF'
 
-type ValueType = string | number | undefined
+export type StringOrNumberType = string | number
 class Token implements Display {
   type: TokenType
-  value: ValueType
+  value: StringOrNumberType
 
   positionStart: Position
   positionEnd: Position
 
   constructor(
     type: TokenType,
-    value?: ValueType,
+    value?: StringOrNumberType,
     positionStart?: Position,
     positionEnd?: Position,
   ) {

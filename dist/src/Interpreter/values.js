@@ -74,6 +74,76 @@ class NumberClass {
             };
         }
     }
+    getComparisonEq(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value === other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    getComparisonNe(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value !== other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    getComparisonLt(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value < other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    getComparisonGt(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value > other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    getComparisonLte(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value <= other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    getComparisonGte(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value >= other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    andedBy(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value && other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    oredBy(other) {
+        if (other instanceof NumberClass) {
+            return {
+                number: new NumberClass(Number(this.value || other.value)).setContext(this.context),
+                error: null,
+            };
+        }
+    }
+    notted() {
+        return {
+            number: new NumberClass(this.value === 0 ? 1 : 0).setContext(this.context),
+            error: null,
+        };
+    }
 }
 exports.NumberClass = NumberClass;
 //# sourceMappingURL=values.js.map

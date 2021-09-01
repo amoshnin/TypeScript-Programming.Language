@@ -8,6 +8,8 @@ import { SymbolTable } from './Context/symbolTable'
 
 const globalSymbolTable = new SymbolTable()
 globalSymbolTable.set('null', new NumberClass(0))
+globalSymbolTable.set('FALSE', new NumberClass(0))
+globalSymbolTable.set('TRUE', new NumberClass(1))
 
 export const run = (
   fileName: string,

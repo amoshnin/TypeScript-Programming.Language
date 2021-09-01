@@ -26,12 +26,17 @@ class Parser {
         return result;
     }
     binaryOperation(leftFn, operations, rightFn) {
+        let q = operations.map((item) => JSON.stringify(item));
         const s = (x) => {
             return x === 'FACTOR'
                 ? this.factor()
                 : x === 'ATOM'
                     ? this.atom()
-                    : this.term();
+                    : x === 'COMPARISON_EXPRESSION'
+                        ? this.comparisonExpression()
+                        : x === 'ARITHMETIC_EXPRESSION'
+                            ? this.arithmeticExpression()
+                            : this.term();
         };
         if (!rightFn) {
             rightFn = leftFn;
@@ -40,7 +45,11 @@ class Parser {
         var left = result.register(s(leftFn));
         if (result.error)
             return result;
-        while (operations.includes(this.currentToken.type)) {
+        while (q.includes(JSON.stringify({ type: this.currentToken.type })) ||
+            q.includes(JSON.stringify({
+                type: this.currentToken.type,
+                value: this.currentToken.value,
+            }))) {
             let operation_token = this.currentToken;
             result.registerAdvancement();
             this.advance();
@@ -82,7 +91,7 @@ class Parser {
         return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected int, float, identifier, '+', '-' or '('"));
     }
     power() {
-        return this.binaryOperation('ATOM', ['POW'], 'FACTOR');
+        return this.binaryOperation('ATOM', [{ type: 'POW' }], 'FACTOR');
     }
     factor() {
         let result = new ParseResult_1.ParseResult();
@@ -98,7 +107,7 @@ class Parser {
         return this.power();
     }
     term() {
-        return this.binaryOperation('FACTOR', ['MUL', 'DIV']);
+        return this.binaryOperation('FACTOR', [{ type: 'MUL' }, { type: 'DIV' }]);
     }
     expr() {
         let result = new ParseResult_1.ParseResult();
@@ -122,11 +131,41 @@ class Parser {
                 return result;
             return result.success(new nodes_1.VarAssignNode(varName, expr));
         }
-        let node = result.register(this.binaryOperation('TERM', ['PLUS', 'MINUS']));
+        let node = result.register(this.binaryOperation('COMPARISON_EXPRESSION', [
+            { type: 'KEYWORD', value: 'AND' },
+            { type: 'KEYWORD', value: 'OR' },
+        ]));
         if (result.error) {
             return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'VAR', int, float, identifier, '+', '-' or '('"));
         }
         return result.success(node);
+    }
+    comparisonExpression() {
+        let result = new ParseResult_1.ParseResult();
+        if (this.currentToken.matches('KEYWORD', 'NOT')) {
+            let operationToken = this.currentToken;
+            result.registerAdvancement();
+            this.advance();
+            let node = result.register(this.comparisonExpression());
+            if (result.error)
+                return result;
+            return result.success(new nodes_1.UnaryOperationNode(operationToken, node));
+        }
+        let node = result.register(this.binaryOperation('ARITHMETIC_EXPRESSION', [
+            { type: 'EE' },
+            { type: 'NE' },
+            { type: 'LT' },
+            { type: 'GT' },
+            { type: 'LTE' },
+            { type: 'GTE' },
+        ]));
+        if (result.error) {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected int, float, identifier, '+', '-' or '(', 'NOT'"));
+        }
+        return result.success(node);
+    }
+    arithmeticExpression() {
+        return this.binaryOperation('TERM', [{ type: 'PLUS' }, { type: 'MINUS' }]);
     }
 }
 exports.Parser = Parser;
