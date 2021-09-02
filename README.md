@@ -131,7 +131,59 @@ The role of the interpreter is to traverse through the AST (Abstract Syntax Tree
 
 </details>
 
-## Examples of Working Programs
+## Examples of Fundamental Concepts of Programming Languages
+
+### Built-In Constants
+
+```javascript
+PRINT(NULL) // 0
+PRINT(FALSE) // 0
+PRINT(TRUE) // 1
+PRINT(MATH_PI) // 3.141592653589793
+```
+
+### Built-In Functions
+
+```javascript
+// > General functins < //
+'PRINT' =>
+PRINT("Hello World") // Hello World
+
+// > Check if is corresponding type < //
+'IS_NUMBER' =>
+IS_NUMBER(123) // 1
+IS_NUMBER("Hello") // 0
+
+'IS_STRING' =>
+IS_STRING("Hello") // 1
+IS_STRING(123) // 0
+
+'IS_LIST' =>
+IS_LIST([1,2,3]) // 1
+IS_LIST("Hello") // 0
+
+'IS_FUNCTION' =>
+VAR x = FUN test(a) -> a * 2 // <function test>
+IS_FUNCTION(x) // 1
+
+// > List functions (mutable) < //
+'APPEND' =>
+VAR list = [1,2,3] // [1, 2, 3]
+APPEND(list, 4)
+PRINT([1, 2, 3]) // [1, 2, 3, 4]
+
+'POP' =>
+VAR list = [1,2,3] // [1, 2, 3]
+POP(list, 0) // 1
+PRINT(list) // [2, 3]
+
+// > List functions (immutable) < //
+'EXTEND' =>
+VAR list = [1, 2, 3]
+VAR extendedList = EXTEND(list, [1,2,3])
+PRINT(extendedList) // [1, 2, 3, 1, 2, 3]
+PRINT(list) // [1, 2, 3]
+```
 
 ### Basic Variable Declaration
 
@@ -199,12 +251,87 @@ WHILE result < 100000 THEN VAR result = result + 1
 result // result => 100000
 ```
 
-### Nested Loops
-
-### FizzBuzz
-
-### Recursion and Fibonacci
-
 ### Order of Operations
 
-## Repl.it Link
+```javascript
+VAR result1 = (2 + 5) * 2 - (10 + 5) // -1
+VAR result2 = 5 == 5 OR 3 == 2 // 1 (TRUE)
+```
+
+## Examples of Advanced Concepts of Programming Languages (Multi-Line Statements & Reading from files)
+
+### Multi-Line Statements (if statements)
+
+```javascript
+IF <expr> THEN <expr>
+
+IF <expr> THEN
+  <expr1>
+  <expr2>
+  <expr3>
+END
+```
+
+### Multi-Line Statements (for loops)
+
+```javascript
+FOR i = 0 to 10 THEN <expr>
+
+FOR i = 0 TO 10 THEN
+  <expr1>
+  <expr2>
+  <expr3>
+END
+```
+
+### Multi-Line Statements (functions)
+
+```javascript
+FUN <name>() -> <expr>
+
+FUN <name>()
+  <expr1>
+  <expr2>
+  <expr3>
+END
+```
+
+## DataTypes
+
+### DataType: Integer (INT)
+
+```javascript
+VAR int = 25
+```
+
+### DataType: Floating number (FLOAT)
+
+```javascript
+VAR float = 23.2
+```
+
+### DataType: String
+
+```javascript
+'Text'
+"Text with \"quotes\""
+'Text with \\ backslashes \\'
+'Text \nwith \nnewlines'
+```
+
+### DataType: Lists
+
+```javascript
+[] // List syntax
+[1, 2, 3] + 4 => [1, 2, 3, 4] // Add an element to the list
+[1, 2, 3] * [3, 4, 5] => [1, 2, 3, 3, 4, 5] // Concatenate two lists
+
+[1, 2, 3] - 1 => [1, 3] // Remove element from the list at index 1
+[1, 2, 3] - 0 => [2, 3] // Remove element from the list at index 0
+
+[1, 2, 3] - -1 => [1, 2] // Remove the last element from the list
+[1, 2, 3] - -2 => [1, 3] // Remove the before-last element from the list
+
+[1, 2, 3] / 0 => 1 // Retrieve an element from the array at index 0
+[1, 2, 3] / 1 => 2 // Retrieve an element from the array at index 1
+```

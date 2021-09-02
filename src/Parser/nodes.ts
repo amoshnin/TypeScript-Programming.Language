@@ -6,6 +6,24 @@ export interface NodeType extends Display {
   positionStart: Position
   positionEnd: Position
 }
+
+class StringNode implements NodeType {
+  token: Token
+  positionStart: Position
+  positionEnd: Position
+
+  constructor(token: Token) {
+    this.token = token
+
+    this.positionStart = this.token.positionStart
+    this.positionEnd = this.token.positionEnd
+  }
+
+  descr(): string {
+    return this.token.descr()
+  }
+}
+
 class NumberNode implements NodeType {
   token: Token
   positionStart: Position
@@ -20,6 +38,28 @@ class NumberNode implements NodeType {
 
   descr(): string {
     return this.token.descr()
+  }
+}
+
+class ListNode implements NodeType {
+  elementNodes: Array<NodeType>
+
+  positionStart: Position
+  positionEnd: Position
+
+  constructor(
+    elementNodes: Array<NodeType>,
+    positionStart: Position,
+    positionEnd: Position,
+  ) {
+    this.elementNodes = elementNodes
+
+    this.positionStart = positionStart
+    this.positionEnd = positionEnd
+  }
+
+  descr(): string {
+    return 'ListNode default descr'
   }
 }
 
@@ -105,15 +145,19 @@ class VarAssignNode implements NodeType {
   }
 }
 
-export type IfExpressionCase = { condition: NodeType; expr: NodeType }
+export type IfExpressionCaseType = {
+  condition: NodeType
+  expr: NodeType
+  shouldReturnNull?: boolean
+}
 class IfNode implements NodeType {
-  cases: Array<IfExpressionCase>
+  cases: Array<IfExpressionCaseType>
   elseCase: NodeType
 
   positionStart: Position
   positionEnd: Position
 
-  constructor(cases: Array<IfExpressionCase>, elseCase?: NodeType) {
+  constructor(cases: Array<IfExpressionCaseType>, elseCase?: NodeType) {
     this.cases = cases
     this.elseCase = elseCase
 
@@ -239,7 +283,9 @@ class CallNode implements NodeType {
 }
 
 export {
+  StringNode,
   NumberNode,
+  ListNode,
   BinaryOperationNode,
   UnaryOperationNode,
   VarAccessNode,

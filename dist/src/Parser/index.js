@@ -12,14 +12,58 @@ class Parser {
     }
     advance() {
         this.tokenIndex += 1;
-        if (this.tokenIndex < this.tokens.length) {
-            this.currentToken = this.tokens[this.tokenIndex];
-        }
+        this.updateCurrentToken();
         return this.currentToken;
     }
+    reverse(amount = 1) {
+        this.tokenIndex -= amount;
+        this.updateCurrentToken();
+        return this.currentToken;
+    }
+    updateCurrentToken() {
+        if (this.tokenIndex >= 0 && this.tokenIndex < this.tokens.length) {
+            this.currentToken = this.tokens[this.tokenIndex];
+        }
+    }
     ////////////////////////////////////
+    statements() {
+        let result = new ParseResult_1.ParseResult();
+        var statements = [];
+        let positionStart = this.currentToken.positionStart.copy();
+        while (this.currentToken.type === 'NEWLINE') {
+            result.registerAdvancement();
+            this.advance();
+        }
+        var statement = result.register(this.expr());
+        if (result.error)
+            return result;
+        statements.push(statement);
+        var moreStatements = true;
+        while (true) {
+            var newlineCount = 0;
+            // @ts-ignore
+            while (this.currentToken.type === 'NEWLINE') {
+                result.registerAdvancement();
+                this.advance();
+                newlineCount += 1;
+            }
+            if (newlineCount === 0) {
+                moreStatements = false;
+            }
+            if (!moreStatements)
+                break;
+            statement = result.try_register(this.expr());
+            if (!statement) {
+                this.reverse(result.toReverseCount);
+                moreStatements = false;
+                continue;
+            }
+            statements.push(statement);
+        }
+        return result.success(new nodes_1.ListNode(statements, positionStart, this.currentToken.positionEnd.copy()));
+    }
     parse() {
-        let result = this.expr();
+        let result = this.statements();
         if (!result.error && this.currentToken.type !== 'EOF') {
             return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '+', '-', '*', '/', '^', '==', '!=', '<', '>', <=', '>=', 'AND' or 'OR'"));
         }
@@ -79,7 +123,7 @@ class Parser {
             else {
                 argNodes.push(result.register(this.expr()));
                 if (result.error) {
-                    return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(' or 'NOT'"));
+                    return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'"));
                 }
                 // @ts-ignore
                 while (this.currentToken.type === 'COMMA') {
@@ -108,6 +152,11 @@ class Parser {
             this.advance();
             return result.success(new nodes_1.NumberNode(token));
         }
+        else if (token.type === 'STRING') {
+            result.registerAdvancement();
+            this.advance();
+            return result.success(new nodes_1.StringNode(token));
+        }
         else if (token.type === 'IDENTIFIER') {
             result.registerAdvancement();
             this.advance();
@@ -127,6 +176,12 @@ class Parser {
             else {
                 return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ')'"));
             }
+        }
+        else if (token.type === 'LSQUARE') {
+            let listExpression = result.register(this.listExpression());
+            if (result.error)
+                return result;
+            return result.success(listExpression);
         }
         else if (token.matches('KEYWORD', 'IF')) {
             let ifExpression = result.register(this.ifExpression());
@@ -152,7 +207,7 @@ class Parser {
                 return result;
             return result.success(whileExpression);
         }
-        return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected int, float, identifier, '+', '-', '(', 'IF', 'FOR', 'WHILE', 'FUN'"));
+        return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected int, float, identifier, '+', '-', '(', '[', 'IF', 'FOR', 'WHILE', 'FUN'"));
     }
     power() {
         return this.binaryOperation('CALL', [{ type: 'POW' }], 'FACTOR');
@@ -204,6 +259,42 @@ class Parser {
         }
         return result.success(node);
     }
+    listExpression() {
+        let result = new ParseResult_1.ParseResult();
+        var elementNodes = [];
+        let positionStart = this.currentToken.positionStart.copy();
+        if (this.currentToken.type !== 'LSQUARE') {
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '['"));
+        }
+        result.registerAdvancement();
+        this.advance();
+        // @ts-ignore
+        if (this.currentToken.type === 'RSQUARE') {
+            result.registerAdvancement();
+            this.advance();
+        }
+        else {
+            elementNodes.push(result.register(this.expr()));
+            if (result.error) {
+                return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ']', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'"));
+            }
+            // @ts-ignore
+            while (this.currentToken.type === 'COMMA') {
+                result.registerAdvancement();
+                this.advance();
+                elementNodes.push(result.register(this.expr()));
+                if (result.error)
+                    return result;
+            }
+            // @ts-ignore
+            if (this.currentToken.type !== 'RSQUARE') {
+                return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected ',' or ']'"));
+            }
+            result.registerAdvancement();
+            this.advance();
+        }
+        return result.success(new nodes_1.ListNode(elementNodes, positionStart, this.currentToken.positionEnd.copy()));
+    }
     comparisonExpression() {
         let result = new ParseResult_1.ParseResult();
         if (this.currentToken.matches('KEYWORD', 'NOT')) {
@@ -224,7 +315,7 @@ class Parser {
             { type: 'GTE' },
         ]));
         if (result.error) {
-            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(' or 'NOT'"));
+            return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'"));
         }
         return result.success(node);
     }

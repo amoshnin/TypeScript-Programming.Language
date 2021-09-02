@@ -1,5 +1,3 @@
-import { TokenType } from '../Base/tokens'
-
 const DIGITS = '0123456789'
 const LETTERS = ascii_letters()
 const LETTERS_DIGITS = LETTERS + DIGITS
@@ -18,6 +16,7 @@ type KeywordType =
   | 'STEP'
   | 'WHILE'
   | 'FUN'
+  | 'END'
 
 const KEYWORDS: Array<KeywordType> = [
   'VAR',
@@ -33,6 +32,7 @@ const KEYWORDS: Array<KeywordType> = [
   'STEP',
   'WHILE',
   'FUN',
+  'END',
 ]
 
 function ascii_letters() {

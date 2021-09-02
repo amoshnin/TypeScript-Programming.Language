@@ -8,9 +8,19 @@ const values_1 = require("./Interpreter/values");
 const Parser_1 = require("./Parser");
 const symbolTable_1 = require("./Context/symbolTable");
 const globalSymbolTable = new symbolTable_1.SymbolTable();
-globalSymbolTable.set('NULL', new values_1.NumberClass(0));
-globalSymbolTable.set('FALSE', new values_1.NumberClass(0));
-globalSymbolTable.set('TRUE', new values_1.NumberClass(1));
+globalSymbolTable.set('NULL', values_1.NumberClass.null);
+globalSymbolTable.set('FALSE', values_1.NumberClass.false);
+globalSymbolTable.set('TRUE', values_1.NumberClass.true);
+globalSymbolTable.set('MATH_PI', values_1.NumberClass.MathPI);
+// Built-in functions
+globalSymbolTable.set('PRINT', new values_1.BuiltInFunctionClass('print'));
+globalSymbolTable.set('IS_NUMBER', new values_1.BuiltInFunctionClass('isNumber'));
+globalSymbolTable.set('IS_STRING', new values_1.BuiltInFunctionClass('isString'));
+globalSymbolTable.set('IS_LIST', new values_1.BuiltInFunctionClass('isList'));
+globalSymbolTable.set('IS_FUNCTION', new values_1.BuiltInFunctionClass('isFunction'));
+globalSymbolTable.set('APPEND', new values_1.BuiltInFunctionClass('append'));
+globalSymbolTable.set('POP', new values_1.BuiltInFunctionClass('pop'));
+globalSymbolTable.set('EXTEND', new values_1.BuiltInFunctionClass('extend'));
 const run = (fileName, text) => {
     // Generate tokens
     const lexer = new lexer_1.Lexer(fileName, text);

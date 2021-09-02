@@ -1,6 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CallNode = exports.FunctionDefinitionNode = exports.WhileNode = exports.ForNode = exports.IfNode = exports.VarAssignNode = exports.VarAccessNode = exports.UnaryOperationNode = exports.BinaryOperationNode = exports.NumberNode = void 0;
+exports.CallNode = exports.FunctionDefinitionNode = exports.WhileNode = exports.ForNode = exports.IfNode = exports.VarAssignNode = exports.VarAccessNode = exports.UnaryOperationNode = exports.BinaryOperationNode = exports.ListNode = exports.NumberNode = exports.StringNode = void 0;
+class StringNode {
+    constructor(token) {
+        this.token = token;
+        this.positionStart = this.token.positionStart;
+        this.positionEnd = this.token.positionEnd;
+    }
+    descr() {
+        return this.token.descr();
+    }
+}
+exports.StringNode = StringNode;
 class NumberNode {
     constructor(token) {
         this.token = token;
@@ -12,6 +23,17 @@ class NumberNode {
     }
 }
 exports.NumberNode = NumberNode;
+class ListNode {
+    constructor(elementNodes, positionStart, positionEnd) {
+        this.elementNodes = elementNodes;
+        this.positionStart = positionStart;
+        this.positionEnd = positionEnd;
+    }
+    descr() {
+        return 'ListNode default descr';
+    }
+}
+exports.ListNode = ListNode;
 class BinaryOperationNode {
     constructor(leftNode, operationToken, rightNode) {
         this.leftNode = leftNode;

@@ -47,6 +47,14 @@ class Interpreter {
         if (node instanceof nodes_1.CallNode) {
             return this.visitCallNode(node, context); // => RuntimeResult()
         }
+        // Visit_String
+        if (node instanceof nodes_1.StringNode) {
+            return this.visitStringNode(node, context); // => RuntimeResult()
+        }
+        // Visit_String
+        if (node instanceof nodes_1.ListNode) {
+            return this.visitListNode(node, context); // => RuntimeResult()
+        }
     }
     visitVarAccessNode(node, context) {
         let result = new RuntimeResult_1.RuntimeResult();
@@ -55,7 +63,10 @@ class Interpreter {
         if (!value) {
             return result.failure(new errors_1.RuntimeError(node.positionStart, node.positionEnd, `'${varName}' is not defined`, context));
         }
-        value = value.copy().setPosition(node.positionStart, node.positionEnd);
+        value = value
+            .copy()
+            .setPosition(node.positionStart, node.positionEnd)
+            .setContext(context);
         return result.success(value);
     }
     visitVarAssignNode(node, context) {
@@ -200,6 +211,7 @@ class Interpreter {
     }
     visitForNode(node, context) {
         let result = new RuntimeResult_1.RuntimeResult();
+        var elements = [];
         let startValue = result.register(this.visit(node.startValueNode, context));
         if (result.error)
             return result;
@@ -226,14 +238,17 @@ class Interpreter {
         while (condition()) {
             context.symbolTable.set(String(node.varNameToken.value), new values_1.NumberClass(i));
             i += stepValue.value;
-            result.register(this.visit(node.bodyNode, context));
+            elements.push(result.register(this.visit(node.bodyNode, context)));
             if (result.error)
                 return result;
         }
-        return result.success(null);
+        return result.success(new values_1.ListClass(elements)
+            .setContext(context)
+            .setPosition(node.positionStart, node.positionEnd));
     }
     visitWhileNode(node, context) {
         let result = new RuntimeResult_1.RuntimeResult();
+        var elements = [];
         while (true) {
             let condition = result.register(this.visit(node.conditionNode, context));
             if (result.error)
@@ -241,11 +256,13 @@ class Interpreter {
             if (!condition.isTrue()) {
                 break;
             }
-            result.register(this.visit(node.bodyNode, context));
+            elements.push(result.register(this.visit(node.bodyNode, context)));
             if (result.error)
                 return result;
         }
-        return result.success(null);
+        return result.success(new values_1.ListClass(elements)
+            .setContext(context)
+            .setPosition(node.positionStart, node.positionEnd));
     }
     visitFunctionDefinitionNode(node, context) {
         let result = new RuntimeResult_1.RuntimeResult();
@@ -276,10 +293,31 @@ class Interpreter {
             if (result.error)
                 return result;
         });
-        let returnValue = result.register(valueToCall.execute(args));
+        var returnValue = result.register(valueToCall.execute(args));
         if (result.error)
             return result;
+        returnValue = returnValue
+            .copy()
+            .setPosition(node.positionStart, node.positionEnd)
+            .setContext(context);
         return result.success(returnValue);
+    }
+    visitStringNode(node, context) {
+        return new RuntimeResult_1.RuntimeResult().success(new values_1.StringClass(node.token.value)
+            .setContext(context)
+            .setPosition(node.positionStart, node.positionEnd));
+    }
+    visitListNode(node, context) {
+        let result = new RuntimeResult_1.RuntimeResult();
+        var elements = [];
+        node.elementNodes.forEach((elementNode) => {
+            elements.push(result.register(this.visit(elementNode, context)));
+            if (result.error)
+                return result;
+        });
+        return result.success(new values_1.ListClass(elements)
+            .setContext(context)
+            .setPosition(node.positionStart, node.positionEnd));
     }
 }
 exports.Interpreter = Interpreter;

@@ -12,6 +12,8 @@ import {
   WhileNode,
   FunctionDefinitionNode,
   CallNode,
+  StringNode,
+  ListNode,
 } from './nodes'
 import { InvalidSyntaxError } from '../Shared/errors'
 import { ParseResult } from './ParseResult'
@@ -36,15 +38,69 @@ class Parser {
 
   advance(): Token {
     this.tokenIndex += 1
-    if (this.tokenIndex < this.tokens.length) {
-      this.currentToken = this.tokens[this.tokenIndex]
-    }
+    this.updateCurrentToken()
     return this.currentToken
   }
 
+  reverse(amount: number = 1): Token {
+    this.tokenIndex -= amount
+    this.updateCurrentToken()
+    return this.currentToken
+  }
+
+  updateCurrentToken() {
+    if (this.tokenIndex >= 0 && this.tokenIndex < this.tokens.length) {
+      this.currentToken = this.tokens[this.tokenIndex]
+    }
+  }
+
   ////////////////////////////////////
+  statements() {
+    let result = new ParseResult()
+    var statements = []
+    let positionStart = this.currentToken.positionStart.copy()
+
+    while (this.currentToken.type === 'NEWLINE') {
+      result.registerAdvancement()
+      this.advance()
+    }
+
+    var statement = result.register(this.expr())
+    if (result.error) return result
+    statements.push(statement)
+
+    var moreStatements = true
+    while (true) {
+      var newlineCount = 0
+      // @ts-ignore
+      while (this.currentToken.type === 'NEWLINE') {
+        result.registerAdvancement()
+        this.advance()
+        newlineCount += 1
+      }
+      if (newlineCount === 0) {
+        moreStatements = false
+      }
+      if (!moreStatements) break
+      statement = result.try_register(this.expr())
+      if (!statement) {
+        this.reverse(result.toReverseCount)
+        moreStatements = false
+        continue
+      }
+      statements.push(statement)
+    }
+    return result.success(
+      new ListNode(
+        statements,
+        positionStart,
+        this.currentToken.positionEnd.copy(),
+      ),
+    )
+  }
+
   parse(): ParseResult {
-    let result = this.expr()
+    let result = this.statements()
     if (!result.error && this.currentToken.type !== 'EOF') {
       return result.failure(
         new InvalidSyntaxError(
@@ -125,7 +181,7 @@ class Parser {
             new InvalidSyntaxError(
               this.currentToken.positionStart,
               this.currentToken.positionEnd,
-              "Expected ')', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(' or 'NOT'",
+              "Expected ')', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'",
             ),
           )
         }
@@ -166,6 +222,10 @@ class Parser {
       result.registerAdvancement()
       this.advance()
       return result.success(new NumberNode(token))
+    } else if (token.type === 'STRING') {
+      result.registerAdvancement()
+      this.advance()
+      return result.success(new StringNode(token))
     } else if (token.type === 'IDENTIFIER') {
       result.registerAdvancement()
       this.advance()
@@ -188,6 +248,10 @@ class Parser {
           ),
         )
       }
+    } else if (token.type === 'LSQUARE') {
+      let listExpression = result.register(this.listExpression())
+      if (result.error) return result
+      return result.success(listExpression)
     } else if (token.matches('KEYWORD', 'IF')) {
       let ifExpression = result.register(this.ifExpression())
       if (result.error) return result
@@ -210,7 +274,7 @@ class Parser {
       new InvalidSyntaxError(
         this.currentToken.positionStart,
         this.currentToken.positionEnd,
-        "Expected int, float, identifier, '+', '-', '(', 'IF', 'FOR', 'WHILE', 'FUN'",
+        "Expected int, float, identifier, '+', '-', '(', '[', 'IF', 'FOR', 'WHILE', 'FUN'",
       ),
     )
   }
@@ -293,6 +357,73 @@ class Parser {
     return result.success(node)
   }
 
+  listExpression(): ParseResult {
+    let result = new ParseResult()
+    var elementNodes: Array<NodeType> = []
+    let positionStart = this.currentToken.positionStart.copy()
+
+    if (this.currentToken.type !== 'LSQUARE') {
+      return result.failure(
+        new InvalidSyntaxError(
+          this.currentToken.positionStart,
+          this.currentToken.positionEnd,
+          "Expected '['",
+        ),
+      )
+    }
+
+    result.registerAdvancement()
+    this.advance()
+
+    // @ts-ignore
+    if (this.currentToken.type === 'RSQUARE') {
+      result.registerAdvancement()
+      this.advance()
+    } else {
+      elementNodes.push(result.register(this.expr()))
+      if (result.error) {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected ']', 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'",
+          ),
+        )
+      }
+
+      // @ts-ignore
+      while (this.currentToken.type === 'COMMA') {
+        result.registerAdvancement()
+        this.advance()
+
+        elementNodes.push(result.register(this.expr()))
+        if (result.error) return result
+      }
+
+      // @ts-ignore
+      if (this.currentToken.type !== 'RSQUARE') {
+        return result.failure(
+          new InvalidSyntaxError(
+            this.currentToken.positionStart,
+            this.currentToken.positionEnd,
+            "Expected ',' or ']'",
+          ),
+        )
+      }
+
+      result.registerAdvancement()
+      this.advance()
+    }
+
+    return result.success(
+      new ListNode(
+        elementNodes,
+        positionStart,
+        this.currentToken.positionEnd.copy(),
+      ),
+    )
+  }
+
   comparisonExpression(): ParseResult {
     let result = new ParseResult()
     if (this.currentToken.matches('KEYWORD', 'NOT')) {
@@ -321,7 +452,7 @@ class Parser {
         new InvalidSyntaxError(
           this.currentToken.positionStart,
           this.currentToken.positionEnd,
-          "Expected 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(' or 'NOT'",
+          "Expected 'VAR', 'IF', 'FOR', 'WHILE', 'FUN', int, float, identifier, '+', '-', '(', '[' or 'NOT'",
         ),
       )
     }
@@ -333,27 +464,23 @@ class Parser {
     return this.binaryOperation('TERM', [{ type: 'PLUS' }, { type: 'MINUS' }])
   }
 
-  ifExpression(): ParseResult {
+  ifExpressionCases(caseKeyword: 'IF' | 'ELIF') {
     let result = new ParseResult()
     var cases: Array<IfExpressionCase> = []
     var elseCase: NodeType
-
-    if (!this.currentToken.matches('KEYWORD', 'IF')) {
+    if (!this.currentToken.matches('KEYWORD', caseKeyword)) {
       return result.failure(
         new InvalidSyntaxError(
           this.currentToken.positionStart,
           this.currentToken.positionEnd,
-          "Expected 'IF'",
+          `Expected ${caseKeyword}`,
         ),
       )
     }
-
     result.registerAdvancement()
     this.advance()
-
     let condition = result.register(this.expr()) // Taking the condition to be compared
     if (result.error) return result
-
     if (!this.currentToken.matches('KEYWORD', 'THEN')) {
       return result.failure(
         new InvalidSyntaxError(
@@ -363,21 +490,16 @@ class Parser {
         ),
       )
     }
-
     result.registerAdvancement()
     this.advance()
-
-    let expr = result.register(this.expr()) // Taking the expression to be executed if condition succeeds
+    var expr = result.register(this.expr()) // Taking the expression to be executed if condition succeeds
     if (result.error) return result
     cases.push({ condition, expr })
-
     while (this.currentToken.matches('KEYWORD', 'ELIF')) {
       result.registerAdvancement()
       this.advance()
-
       let condition = result.register(this.expr())
       if (result.error) return result
-
       if (!this.currentToken.matches('KEYWORD', 'THEN')) {
         return result.failure(
           new InvalidSyntaxError(
@@ -387,24 +509,87 @@ class Parser {
           ),
         )
       }
-
       result.registerAdvancement()
       this.advance()
 
-      let expr = result.register(this.expr())
-      if (result.error) return result
-      cases.push({ condition, expr })
+      if (this.currentToken.type === 'NEWLINE') {
+        result.registerAdvancement()
+        this.advance()
+
+        let statements = result.register(this.statements())
+        if (result.error) return result
+        cases.push({ condition, expr: statements, shouldReturnNull: true })
+
+        if (this.currentToken.matches('KEYWORD', 'END')) {
+          result.registerAdvancement()
+          this.advance()
+        } else {
+          let allCases = result.register(this.ifExpressionBOrC())
+          if (result.error) return result
+          const { newCases, elseCase } = allCases
+          cases = cases.concat(newCases)
+        }
+      } else {
+        expr = result.register(this.expr())
+        if (result.error) return result
+        cases.push({ condition, expr })
+
+        let allCases = result.register(this.ifExpressionBOrC())
+        if (result.error) return result
+        const { newCases, elseCase } = allCases
+        cases = cases.concat(newCases)
+      }
     }
+    if (this.currentToken.matches('KEYWORD', 'ELSE')) {
+      result.registerAdvancement()
+      this.advance()
+      elseCase = result.register(this.expr())
+      if (result.error) return result
+    }
+    return result.success(new IfNode(cases, elseCase))
+  }
+
+  ifExpression(): ParseResult {
+    let result = new ParseResult()
+    let { cases, elseCase } = result.register(this.ifExpressionCases('IF'))
+    if (result.error) return result
+    return result.success(new IfNode(cases, elseCase))
+  }
+
+  ifExpressionB(): ParseResult {
+    return this.ifExpressionCases('ELIF')
+  }
+
+  ifExpressionC(): ParseResult {
+    let result = new ParseResult()
+    var elseCase = null
 
     if (this.currentToken.matches('KEYWORD', 'ELSE')) {
       result.registerAdvancement()
       this.advance()
 
-      elseCase = result.register(this.expr())
-      if (result.error) return result
-    }
+      if (this.currentToken.type === 'NEWLINE') {
+        result.registerAdvancement()
+        this.advance()
 
-    return result.success(new IfNode(cases, elseCase))
+        let statements = result.register(this.statements())
+        if (result.error) return result
+        elseCase = { statements, shouldReturnNull: true }
+
+        if (this.currentToken.matches('KEYWORD', 'END')) {
+          result.registerAdvancement()
+          this.advance()
+        } else {
+          return result.failure(
+            new InvalidSyntaxError(
+              this.currentToken.positionStart,
+              this.currentToken.positionEnd,
+              "Expected 'END'",
+            ),
+          )
+        }
+      }
+    }
   }
 
   forExpression(): ParseResult {

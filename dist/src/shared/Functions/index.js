@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.range = exports.stringWithArrows = void 0;
+exports.capitalizeFirstLetter = exports.range = exports.stringWithArrows = void 0;
 const stringWithArrows = (text, positionStart, positionEnd) => {
     return 'x';
     // Python code
@@ -45,4 +45,8 @@ function range(start, stop, step) {
     return result;
 }
 exports.range = range;
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+exports.capitalizeFirstLetter = capitalizeFirstLetter;
 //# sourceMappingURL=index.js.map

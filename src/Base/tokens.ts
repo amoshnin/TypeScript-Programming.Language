@@ -5,6 +5,7 @@ import { Position } from './position'
 type TokenType =
   | 'INT'
   | 'FLOAT'
+  | 'STRING'
   | 'IDENTIFIER'
   | 'KEYWORD'
   | 'PLUS'
@@ -15,6 +16,8 @@ type TokenType =
   | 'EQ'
   | 'LPAREN'
   | 'RPAREN'
+  | 'LSQUARE'
+  | 'RSQUARE'
   | 'EE'
   | 'NE'
   | 'LT'
@@ -23,6 +26,7 @@ type TokenType =
   | 'GTE'
   | 'COMMA'
   | 'ARROW'
+  | 'NEWLINE'
   | 'EOF'
 
 export type StringOrNumberType = string | number

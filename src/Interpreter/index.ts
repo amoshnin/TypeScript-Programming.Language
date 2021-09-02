@@ -1,4 +1,3 @@
-import { StringOrNumberType } from '../base/tokens'
 import { Context } from '../Context'
 import {
   BinaryOperationNode,
@@ -6,8 +5,10 @@ import {
   ForNode,
   FunctionDefinitionNode,
   IfNode,
+  ListNode,
   NodeType,
   NumberNode,
+  StringNode,
   UnaryOperationNode,
   VarAccessNode,
   VarAssignNode,
@@ -15,7 +16,13 @@ import {
 } from '../Parser/nodes'
 import { RuntimeError } from '../shared/errors'
 import { RuntimeResult } from './RuntimeResult'
-import { FunctionClass, NumberClass, ValueClass } from './values'
+import {
+  FunctionClass,
+  ListClass,
+  NumberClass,
+  StringClass,
+  ValueClass,
+} from './values'
 
 class Interpreter {
   visit(node: NodeType, context: Context): RuntimeResult {
@@ -59,6 +66,14 @@ class Interpreter {
     if (node instanceof CallNode) {
       return this.visitCallNode(node, context) // => RuntimeResult()
     }
+    // Visit_String
+    if (node instanceof StringNode) {
+      return this.visitStringNode(node, context) // => RuntimeResult()
+    }
+    // Visit_String
+    if (node instanceof ListNode) {
+      return this.visitListNode(node, context) // => RuntimeResult()
+    }
   }
 
   visitVarAccessNode(node: VarAccessNode, context: Context): RuntimeResult {
@@ -76,7 +91,10 @@ class Interpreter {
         ),
       )
     }
-    value = value.copy().setPosition(node.positionStart, node.positionEnd)
+    value = value
+      .copy()
+      .setPosition(node.positionStart, node.positionEnd)
+      .setContext(context)
     return result.success(value as NumberClass)
   }
 
@@ -225,6 +243,8 @@ class Interpreter {
 
   visitForNode(node: ForNode, context: Context): RuntimeResult {
     let result = new RuntimeResult()
+    var elements: Array<ValueClass> = []
+
     let startValue = result.register(
       this.visit(node.startValueNode, context),
     ) as NumberClass
@@ -260,15 +280,21 @@ class Interpreter {
       )
       i += stepValue.value
 
-      result.register(this.visit(node.bodyNode, context))
+      elements.push(result.register(this.visit(node.bodyNode, context)))
       if (result.error) return result
     }
 
-    return result.success(null)
+    return result.success(
+      new ListClass(elements)
+        .setContext(context)
+        .setPosition(node.positionStart, node.positionEnd),
+    )
   }
 
   visitWhileNode(node: WhileNode, context: Context): RuntimeResult {
     let result = new RuntimeResult()
+    var elements: Array<ValueClass> = []
+
     while (true) {
       let condition = result.register(this.visit(node.conditionNode, context))
       if (result.error) return result
@@ -277,11 +303,15 @@ class Interpreter {
         break
       }
 
-      result.register(this.visit(node.bodyNode, context))
+      elements.push(result.register(this.visit(node.bodyNode, context)))
       if (result.error) return result
     }
 
-    return result.success(null)
+    return result.success(
+      new ListClass(elements)
+        .setContext(context)
+        .setPosition(node.positionStart, node.positionEnd),
+    )
   }
 
   visitFunctionDefinitionNode(
@@ -321,9 +351,38 @@ class Interpreter {
       if (result.error) return result
     })
 
-    let returnValue = result.register(valueToCall.execute(args))
+    var returnValue = result.register(valueToCall.execute(args))
     if (result.error) return result
+
+    returnValue = returnValue
+      .copy()
+      .setPosition(node.positionStart, node.positionEnd)
+      .setContext(context)
     return result.success(returnValue)
+  }
+
+  visitStringNode(node: StringNode, context: Context): RuntimeResult {
+    return new RuntimeResult().success(
+      new StringClass(node.token.value as string)
+        .setContext(context)
+        .setPosition(node.positionStart, node.positionEnd),
+    )
+  }
+
+  visitListNode(node: ListNode, context: Context): RuntimeResult {
+    let result = new RuntimeResult()
+    var elements: Array<ValueClass> = []
+
+    node.elementNodes.forEach((elementNode) => {
+      elements.push(result.register(this.visit(elementNode, context)))
+      if (result.error) return result
+    })
+
+    return result.success(
+      new ListClass(elements)
+        .setContext(context)
+        .setPosition(node.positionStart, node.positionEnd),
+    )
   }
 }
 

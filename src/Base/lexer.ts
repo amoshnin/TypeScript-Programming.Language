@@ -41,10 +41,15 @@ export class Lexer {
     while (this.currentChar !== null) {
       if (' \t'.includes(this.currentChar)) {
         this.advance()
+      } else if (';\n'.includes(this.currentChar)) {
+        tokens.push(new Token('NEWLINE', undefined, this.position))
+        this.advance()
       } else if (DIGITS.includes(this.currentChar)) {
         tokens.push(this.makeNumber())
       } else if (LETTERS.includes(this.currentChar)) {
         tokens.push(this.makeIdentifier())
+      } else if (this.currentChar === '"') {
+        tokens.push(this.makeString())
       } else if (this.currentChar === '+') {
         tokens.push(new Token('PLUS', undefined, this.position))
         this.advance()
@@ -64,6 +69,12 @@ export class Lexer {
         this.advance()
       } else if (this.currentChar === ')') {
         tokens.push(new Token('RPAREN', undefined, this.position))
+        this.advance()
+      } else if (this.currentChar === '[') {
+        tokens.push(new Token('LSQUARE', undefined, this.position))
+        this.advance()
+      } else if (this.currentChar === ']') {
+        tokens.push(new Token('RSQUARE', undefined, this.position))
         this.advance()
       } else if (this.currentChar === '!') {
         const { token, error } = this.makeNotEquals()
@@ -94,6 +105,37 @@ export class Lexer {
     }
     tokens.push(new Token('EOF', undefined, this.position))
     return { tokens, error: null }
+  }
+
+  makeString(): Token {
+    var string = ''
+    let positionStart = this.position.copy()
+    var escapeCharacter = false
+    this.advance()
+
+    var escapeCharacters = {
+      n: '\n',
+      t: '\t',
+    }
+
+    while (
+      this.currentChar !== null &&
+      (this.currentChar !== '"' || escapeCharacter)
+    ) {
+      if (escapeCharacter) {
+        string += escapeCharacters[this.currentChar] || this.currentChar
+      } else {
+        if (this.currentChar === '\\') {
+          escapeCharacter = true
+        } else {
+          string += this.currentChar
+        }
+      }
+      this.advance()
+      escapeCharacter = false
+    }
+    this.advance()
+    return new Token('STRING', string, positionStart, this.position)
   }
 
   makeMinusOrArrow(): Token {
