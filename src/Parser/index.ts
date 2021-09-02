@@ -7,7 +7,7 @@ import {
   VarAssignNode,
   IfNode,
   NodeType,
-  IfExpressionCase,
+  IfExpressionCaseType,
   ForNode,
   WhileNode,
   FunctionDefinitionNode,
@@ -100,7 +100,7 @@ class Parser {
   }
 
   parse(): ParseResult {
-    let result = this.statements()
+    let result = this.expr()
     if (!result.error && this.currentToken.type !== 'EOF') {
       return result.failure(
         new InvalidSyntaxError(
@@ -464,23 +464,27 @@ class Parser {
     return this.binaryOperation('TERM', [{ type: 'PLUS' }, { type: 'MINUS' }])
   }
 
-  ifExpressionCases(caseKeyword: 'IF' | 'ELIF') {
+  ifExpression(): ParseResult {
     let result = new ParseResult()
-    var cases: Array<IfExpressionCase> = []
+    var cases: Array<IfExpressionCaseType> = []
     var elseCase: NodeType
-    if (!this.currentToken.matches('KEYWORD', caseKeyword)) {
+
+    if (!this.currentToken.matches('KEYWORD', 'IF')) {
       return result.failure(
         new InvalidSyntaxError(
           this.currentToken.positionStart,
           this.currentToken.positionEnd,
-          `Expected ${caseKeyword}`,
+          "Expected 'IF'",
         ),
       )
     }
+
     result.registerAdvancement()
     this.advance()
+
     let condition = result.register(this.expr()) // Taking the condition to be compared
     if (result.error) return result
+
     if (!this.currentToken.matches('KEYWORD', 'THEN')) {
       return result.failure(
         new InvalidSyntaxError(
@@ -490,16 +494,21 @@ class Parser {
         ),
       )
     }
+
     result.registerAdvancement()
     this.advance()
-    var expr = result.register(this.expr()) // Taking the expression to be executed if condition succeeds
+
+    let expr = result.register(this.expr()) // Taking the expression to be executed if condition succeeds
     if (result.error) return result
     cases.push({ condition, expr })
+
     while (this.currentToken.matches('KEYWORD', 'ELIF')) {
       result.registerAdvancement()
       this.advance()
+
       let condition = result.register(this.expr())
       if (result.error) return result
+
       if (!this.currentToken.matches('KEYWORD', 'THEN')) {
         return result.failure(
           new InvalidSyntaxError(
@@ -509,87 +518,24 @@ class Parser {
           ),
         )
       }
+
       result.registerAdvancement()
       this.advance()
 
-      if (this.currentToken.type === 'NEWLINE') {
-        result.registerAdvancement()
-        this.advance()
-
-        let statements = result.register(this.statements())
-        if (result.error) return result
-        cases.push({ condition, expr: statements, shouldReturnNull: true })
-
-        if (this.currentToken.matches('KEYWORD', 'END')) {
-          result.registerAdvancement()
-          this.advance()
-        } else {
-          let allCases = result.register(this.ifExpressionBOrC())
-          if (result.error) return result
-          const { newCases, elseCase } = allCases
-          cases = cases.concat(newCases)
-        }
-      } else {
-        expr = result.register(this.expr())
-        if (result.error) return result
-        cases.push({ condition, expr })
-
-        let allCases = result.register(this.ifExpressionBOrC())
-        if (result.error) return result
-        const { newCases, elseCase } = allCases
-        cases = cases.concat(newCases)
-      }
+      let expr = result.register(this.expr())
+      if (result.error) return result
+      cases.push({ condition, expr })
     }
+
     if (this.currentToken.matches('KEYWORD', 'ELSE')) {
       result.registerAdvancement()
       this.advance()
+
       elseCase = result.register(this.expr())
       if (result.error) return result
     }
+
     return result.success(new IfNode(cases, elseCase))
-  }
-
-  ifExpression(): ParseResult {
-    let result = new ParseResult()
-    let { cases, elseCase } = result.register(this.ifExpressionCases('IF'))
-    if (result.error) return result
-    return result.success(new IfNode(cases, elseCase))
-  }
-
-  ifExpressionB(): ParseResult {
-    return this.ifExpressionCases('ELIF')
-  }
-
-  ifExpressionC(): ParseResult {
-    let result = new ParseResult()
-    var elseCase = null
-
-    if (this.currentToken.matches('KEYWORD', 'ELSE')) {
-      result.registerAdvancement()
-      this.advance()
-
-      if (this.currentToken.type === 'NEWLINE') {
-        result.registerAdvancement()
-        this.advance()
-
-        let statements = result.register(this.statements())
-        if (result.error) return result
-        elseCase = { statements, shouldReturnNull: true }
-
-        if (this.currentToken.matches('KEYWORD', 'END')) {
-          result.registerAdvancement()
-          this.advance()
-        } else {
-          return result.failure(
-            new InvalidSyntaxError(
-              this.currentToken.positionStart,
-              this.currentToken.positionEnd,
-              "Expected 'END'",
-            ),
-          )
-        }
-      }
-    }
   }
 
   forExpression(): ParseResult {

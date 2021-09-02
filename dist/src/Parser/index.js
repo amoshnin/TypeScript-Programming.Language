@@ -63,7 +63,7 @@ class Parser {
         return result.success(new nodes_1.ListNode(statements, positionStart, this.currentToken.positionEnd.copy()));
     }
     parse() {
-        let result = this.statements();
+        let result = this.expr();
         if (!result.error && this.currentToken.type !== 'EOF') {
             return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '+', '-', '*', '/', '^', '==', '!=', '<', '>', <=', '>=', 'AND' or 'OR'"));
         }

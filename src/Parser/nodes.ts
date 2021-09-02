@@ -146,7 +146,7 @@ class VarAssignNode implements NodeType {
 }
 
 export type IfExpressionCaseType = {
-  condition: NodeType
+  condition?: NodeType
   expr: NodeType
   shouldReturnNull?: boolean
 }
