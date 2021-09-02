@@ -57,7 +57,7 @@ class Parser {
   ////////////////////////////////////
   statements() {
     let result = new ParseResult()
-    var statements = []
+    var statements: Array<NodeType> = []
     let positionStart = this.currentToken.positionStart.copy()
 
     while (this.currentToken.type === 'NEWLINE') {
@@ -65,7 +65,7 @@ class Parser {
       this.advance()
     }
 
-    var statement = result.register(this.expr())
+    let statement = result.register(this.expr())
     if (result.error) return result
     statements.push(statement)
 
@@ -78,9 +78,7 @@ class Parser {
         this.advance()
         newlineCount += 1
       }
-      if (newlineCount === 0) {
-        moreStatements = false
-      }
+      if (newlineCount === 0) moreStatements = false
       if (!moreStatements) break
       statement = result.try_register(this.expr())
       if (!statement) {
@@ -90,6 +88,7 @@ class Parser {
       }
       statements.push(statement)
     }
+
     return result.success(
       new ListNode(
         statements,
@@ -100,7 +99,7 @@ class Parser {
   }
 
   parse(): ParseResult {
-    let result = this.expr()
+    let result = this.statements()
     if (!result.error && this.currentToken.type !== 'EOF') {
       return result.failure(
         new InvalidSyntaxError(

@@ -34,7 +34,7 @@ class Parser {
             result.registerAdvancement();
             this.advance();
         }
-        var statement = result.register(this.expr());
+        let statement = result.register(this.expr());
         if (result.error)
             return result;
         statements.push(statement);
@@ -47,9 +47,8 @@ class Parser {
                 this.advance();
                 newlineCount += 1;
             }
-            if (newlineCount === 0) {
+            if (newlineCount === 0)
                 moreStatements = false;
-            }
             if (!moreStatements)
                 break;
             statement = result.try_register(this.expr());
@@ -63,7 +62,7 @@ class Parser {
         return result.success(new nodes_1.ListNode(statements, positionStart, this.currentToken.positionEnd.copy()));
     }
     parse() {
-        let result = this.expr();
+        let result = this.statements();
         if (!result.error && this.currentToken.type !== 'EOF') {
             return result.failure(new errors_1.InvalidSyntaxError(this.currentToken.positionStart, this.currentToken.positionEnd, "Expected '+', '-', '*', '/', '^', '==', '!=', '<', '>', <=', '>=', 'AND' or 'OR'"));
         }
