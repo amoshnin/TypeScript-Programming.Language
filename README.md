@@ -34,11 +34,15 @@ For example: "200 200 +" makes no sense in our language. While "123 + 456" makes
 
 In other words, order of operations are being followed and the parses construct the syntax tree accordingly to meet its requirements, as illustrated below:
 
+<p align="center">
 <img src="./img/parser.png" alt="Parser image (of mathematical expression)" style="width:500px;" />
+</p>
 
 To understand the source code of the parser, I below illustrated the grammar of a mathematical expression that is being analyzed while parsing to ensure that the order of operations are followed:
 
+<p align="center">
 <img src="./img/parser_order_of_operations.jpeg" alt="Parser image (of mathematical expression)" style="width:500px;" />
+</p>
 
 ### Interpreter
 
